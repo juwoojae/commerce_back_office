@@ -1,6 +1,7 @@
 package com.example.commerce_back_office.service;
 
 import com.example.commerce_back_office.dto.UserDetailResponseDto;
+import com.example.commerce_back_office.dto.UserRequestDto;
 import com.example.commerce_back_office.dto.UserResponseDto;
 import com.example.commerce_back_office.domain.entity.User;
 import com.example.commerce_back_office.repository.UserRepository;
@@ -45,5 +46,37 @@ public class UserService {
         );
 
         return UserDetailResponseDto.from(user);
+    }
+
+    /**
+     * 주어진 ID에 해당하는 유저 정보를 찾아서, 요청된 필드(name, role)만 수정합니다.
+     * 요청되지 않은 필드는 그대로 유지됩니다.
+     *
+     * @param id 수정할 유저의 ID
+     * @param request 수정할 정보가 담긴 UserRequestDto 객체
+     * @throws IllegalArgumentException 해당 ID의 유저가 존재하지 않을 경우
+     * @return 수정된 유저 정보를 담은 UserDetailResponseDto
+     */
+    public UserDetailResponseDto patch(Long id,UserRequestDto request) {
+
+        // 유저 id 존재 여부 확인
+        User user = userRepository.findById(id).orElseThrow(
+                ()-> new IllegalArgumentException("User not found: " + id)
+        );
+
+        // 이름 수정을 요청했을 때만
+        if (request.getName() != null && !request.getName().equals(user.getName()) ) {
+            user.setName(request.getName());
+        }
+
+        // 권한 수정을 요청했을 때만
+        if (request.getRole() != null && !request.getRole().equals(user.getRole())) {
+            user.setRole(request.getRole());
+        }
+
+        // 데이터 저장
+        User patchUser = userRepository.save(user);
+
+        return UserDetailResponseDto.from(patchUser);
     }
 }

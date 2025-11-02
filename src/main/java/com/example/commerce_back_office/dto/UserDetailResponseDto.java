@@ -6,9 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 /**
  * 유저 상세 정보를 담는 응답 dto
- *
  * 특정 사용자의 상세 정보를 조회할 때 사용됩니다.</p>
- *
  */
 @Getter
 public class UserDetailResponseDto {
