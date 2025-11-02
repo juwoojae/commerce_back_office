@@ -79,4 +79,21 @@ public class UserService {
 
         return UserDetailResponseDto.from(patchUser);
     }
+
+    /**
+     * 입력된 키워드를 name 또는 email 컬럼에 포함하고 있는 유저를 모두 조회합니다.
+     * 대소문자 구분 없이 포함 여부를 검색합니다.
+     *
+     * @param keyword 검색할 키워드
+     * @return List<UserResponseDto> 키워드를 포함한 전체 유저 목록을 담은 DTO 리스트
+     */
+    public List<UserResponseDto> getAllByKeyword(String keyword) {
+
+        // 이름 또는 이메일에서 키워드를 포함한 유저를 찾아서 반환
+        List<User> userList = userRepository.searchKeyword(keyword);
+
+        return userList.stream()
+                .map(UserResponseDto::from)
+                .collect(Collectors.toList());
+    }
 }

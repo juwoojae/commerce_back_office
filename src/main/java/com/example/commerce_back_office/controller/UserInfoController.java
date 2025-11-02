@@ -51,6 +51,18 @@ public class UserInfoController {
     }
 
     /**
+     * 검색 키워드를 기반으로 일치하는 유저 목록을 조회합니다.
+     *
+     * @param keyword 유저(이름, 이메일 포함 문자)를 검색할 키워드
+     * @return List<UserResponseDto> 검색 조건에 일치하는 유저 목록
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponseDto>> getAllUsersByKeyword(@RequestParam String keyword) {
+        List<UserResponseDto> response = userService.getAllByKeyword(keyword);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
      * 특정 유저의 정보를 부분적으로 수정합니다.
      * JSON 형식의 body를 통해 수정할 필드만 전달합니다.
      *
