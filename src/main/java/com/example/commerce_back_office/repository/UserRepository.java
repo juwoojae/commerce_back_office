@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    //해당 이메일이 존재하는지
+    Boolean existsByEmail(String email);
+
     // 이름 또는 이메일에서 대소문자 구분 없이 특정 문자를 포함한 데이터 찾아서 반환
     List<User> findByNameIgnoreCaseContainingOrEmailIgnoreCaseContaining(String name, String email);
 
