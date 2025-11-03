@@ -1,14 +1,12 @@
 package com.example.commerce_back_office.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Table(name = "users")
 @NoArgsConstructor
 public class User extends BaseEntity{
     @Id
@@ -28,5 +26,13 @@ public class User extends BaseEntity{
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
