@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.jwt;
 
+import com.example.commerce_back_office.domain.UserRole;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +47,7 @@ public class JwtUtil {
     /**
      * Jwt 토큰을 만들어서 반환하는 함수
      */
-    public String createJwt(String category, String email, String role, Long expiredMs) {
+    public String createJwt(String category, String email, UserRole role, Long expiredMs) {
         return Jwts.builder()
                 .claim(CLAIM_CATEGORY, category) // (Access / Refresh)
                 .claim(CLAIM_EMAIL, email) //표준 클레임
