@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.dto;
 
+import com.example.commerce_back_office.domain.UserRole;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 
@@ -14,14 +15,14 @@ public class UserRequestDto {
     @Nullable
     private final String name;
     @Nullable
-    private final String role;
+    private final UserRole role;
 
     /**
      * UserRequestDto 응답 객체를 생성합니다.
      * @param name          유저 이름
      * @param role          권한
      */
-    public UserRequestDto(String name, String role) {
+    public UserRequestDto(String name, UserRole role) {
         this.name = name;
         this.role = role;
     }

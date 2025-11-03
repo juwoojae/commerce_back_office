@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.dto;
 
+import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.User;
 import lombok.Getter;
 
@@ -11,11 +12,11 @@ public class UserResponseDto {
     private final Long id;
     private final String email;
     private final String name;
-    private final String role;
+    private final UserRole role;
     private final LocalDateTime created_at;
     private final LocalDateTime updated_at;
 
-    public UserResponseDto(Long id, String email, String name, String role, LocalDateTime createdDate, LocalDateTime lastModifiedDate) {
+    public UserResponseDto(Long id, String email, String name, UserRole role, LocalDateTime createdDate, LocalDateTime lastModifiedDate) {
         this.id = id;
         this.email = email;
         this.name = name;
