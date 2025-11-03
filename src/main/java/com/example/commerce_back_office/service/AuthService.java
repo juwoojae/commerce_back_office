@@ -50,4 +50,5 @@ public class AuthService {
 
         return JoinResponseDto.from(data);
     }
+
 }

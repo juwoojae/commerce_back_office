@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.config;
 
+import com.example.commerce_back_office.jwt.JwtFilter;
 import com.example.commerce_back_office.jwt.JwtUtil;
 import com.example.commerce_back_office.jwt.JwtWriter;
 import com.example.commerce_back_office.jwt.LoginFilter;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -31,6 +33,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final JwtWriter jwtWriter;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -57,6 +60,9 @@ public class SecurityConfig {
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,jwtWriter), UsernamePasswordAuthenticationFilter.class);
 
+        //Jwt 검증 필터 추가
+        http
+                .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService), LoginFilter.class);
 
         //세션 설정
         http
