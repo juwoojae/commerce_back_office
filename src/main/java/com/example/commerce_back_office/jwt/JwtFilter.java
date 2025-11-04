@@ -34,10 +34,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Claims claims = null;
 
-        if(StringUtils.hasText(tokenValue)){
+        if(StringUtils.hasText(tokenValue)) {
             String token = tokenValue.substring(7);
-            claims = jwtUtil.getClaims(token);
-            String email = claims.get("email", String.class);
+            try {
+                claims = jwtUtil.getClaims(token);
+            }catch (ExpiredJwtException e){
+                log.error("토큰이 만료됨 {}",e.getMessage());
+            }catch (JwtException e){
+                log.error("토큰이 조작됨 {}",e.getMessage());
+            }
+            String email = claims.get(CLAIM_EMAIL, String.class);
             try {
                 setAuthentication(email);
             } catch (Exception e) {
@@ -54,6 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @param username
      */
     public void setAuthentication (String username){
+        log.info("JWT 인증 성공");
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = createAuthentication(username); //유저 정보로 인증 객체 생성
 

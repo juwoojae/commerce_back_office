@@ -11,6 +11,5 @@ public class JoinByAdminRequestDto {
     private String password;
     private String name;
     private UserRole role;
-    private LocalDateTime createdDate;
 
 }

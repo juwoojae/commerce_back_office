@@ -61,7 +61,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-
+        log.info("성공적으로 로그인 인증");
         CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
         //유저 정보
         String email = customUserDetails.getUsername();
@@ -71,12 +71,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, role, REFRESH_TOKEN_TIME);
 
         jwtWriter.addJwtToHeader(response, accessToken); //Access 토큰 Http헤더에 넣기
-        jwtWriter.addJwtToCookie(response, refreshToken); //Refresh 토큰 쿠키에 넣기
+        jwtWriter.addJwtToCookie(response, refreshToken,REFRESH_TOKEN_TIME); //Refresh 토큰 쿠키에 넣기
     }
 
     //authenticationManger 의 검증이 실패했으면 실행하는 메서드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        log.info("로그인 인증 실패");
         response.setStatus(401);
     }
 }
