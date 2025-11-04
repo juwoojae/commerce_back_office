@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
                         .anyRequest().authenticated()); //그 이외 로그인한 사용자에 대해 허용
 
+
         //Jwt 검증 필터 추가
         http
                 .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService), LoginFilter.class);
