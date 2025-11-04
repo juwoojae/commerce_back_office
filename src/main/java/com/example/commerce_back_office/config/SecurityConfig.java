@@ -1,6 +1,10 @@
 package com.example.commerce_back_office.config;
 
 import com.example.commerce_back_office.jwt.*;
+import com.example.commerce_back_office.filter.ExceptionFilter;
+import com.example.commerce_back_office.filter.JwtFilter;
+import com.example.commerce_back_office.filter.LoginFilter;
+import com.example.commerce_back_office.filter.LogoutFilter;
 import com.example.commerce_back_office.repository.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,12 +24,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 커스텀한 시큐리티의 필터를 등록 및 설정
  */
 @Configuration
-@EnableMethodSecurity(securedEnabled = true) // ✅ 이거 추가
+@EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final JwtWriter jwtWriter;
+    private final JwtWebManager jwtWebManager;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final UserDetailsService userDetailsService;
     private final RefreshRepository refreshRepository;
@@ -52,17 +55,22 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
                         .anyRequest().authenticated()); //그 이외 로그인한 사용자에 대해 허용
 
+        //로그인 필터 추가
+        http
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtWebManager, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
         //Jwt 검증 필터 추가
         http
                 .addFilterBefore(new JwtFilter(jwtUtil, userDetailsService), LoginFilter.class);
 
-        //로그인 필터 추가
+        //예외처리 필터 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtWriter, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new ExceptionFilter(),JwtFilter.class);
+
+
         //로그 아웃 필터 추가
         http
-                .addFilterAt(new LogoutFilter(jwtUtil, jwtWriter), LoginFilter.class);
+                .addFilterAt(new LogoutFilter(jwtUtil, jwtWebManager), LoginFilter.class);
 
         //세션 설정
         http

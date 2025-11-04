@@ -3,6 +3,7 @@ package com.example.commerce_back_office.jwt;
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.exception.ExpiredException;
 import com.example.commerce_back_office.exception.InvalidTokenException;
+import com.example.commerce_back_office.exception.TokenMissingException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +45,11 @@ public class JwtUtil {
      * Jwt Signature 의 위조 + 만료 검증
      */
     public Claims validationAndgetClaims(String token) {//정보를 찾아오려면 시큐리티 키값이 필요함
+
+        if(token == null){
+            log.info("토큰이 유실되었음");
+            throw new TokenMissingException("토큰이 비어있음");
+        }
         Claims claims = null;
         try {
             claims =  Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();

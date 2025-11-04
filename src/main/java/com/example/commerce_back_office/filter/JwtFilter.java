@@ -1,8 +1,7 @@
-package com.example.commerce_back_office.jwt;
+package com.example.commerce_back_office.filter;
 
+import com.example.commerce_back_office.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

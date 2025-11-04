@@ -83,10 +83,8 @@ public class AuthService {
 
     public RefreshResponseDto reissueToken(String refreshToken) {
         log.info("reissueToken {}", refreshToken);
-        if (refreshToken == null) {
-            log.error("토큰이 유실되었음");
-            throw new TokenMissingException("토큰 유실");   //403
-        }
+
+        Claims claims = jwtUtil.validationAndgetClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
 
         Boolean isExist = refreshRepository.existsByRefreshToken(refreshToken);
 
@@ -95,17 +93,16 @@ public class AuthService {
             throw new InvalidTokenException("사용할수 없는 토큰");
         }
 
-        Claims claims = jwtUtil.validationAndgetClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
-        log.info("여기까진 된다고?");
         if (!claims.get(CLAIM_CATEGORY, String.class)
                 .equals(CATEGORY_REFRESH)) {
             throw new InvalidTokenException("사용할수 없는 토큰");  //401
         }
         //유저 정보
         String email = claims.get(CLAIM_EMAIL, String.class);
-//        UserRole role = claims.get(CLAIM_ROLE, UserRole.class);
+
         String roleString = claims.get(CLAIM_ROLE, String.class);
         UserRole userRole = UserRole.valueOf(roleString);
+
         //토큰 생성
         String newAccessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, userRole, ACCESSION_TIME);//refresh 토큰 생성
         //refresh Rotate

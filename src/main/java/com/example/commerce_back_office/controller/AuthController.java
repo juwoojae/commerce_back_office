@@ -1,10 +1,7 @@
 package com.example.commerce_back_office.controller;
 
-import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.dto.auth.*;
-import com.example.commerce_back_office.jwt.JwtConst;
-import com.example.commerce_back_office.jwt.JwtUtil;
-import com.example.commerce_back_office.jwt.JwtWriter;
+import com.example.commerce_back_office.jwt.JwtWebManager;
 import com.example.commerce_back_office.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +23,7 @@ import static com.example.commerce_back_office.jwt.JwtConst.REFRESH_TOKEN_TIME;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtWriter jwtWriter;
+    private final JwtWebManager jwtWebManager;
     private final AuthService authService;
     /**
      * 회원 가입처리 컨트롤러
@@ -58,8 +55,8 @@ public class AuthController {
         String refreshToken = getRefreshTokenFromCookies(request);//쿠키에서 refreshToken 꺼내기
         RefreshResponseDto result = authService.reissueToken(refreshToken);//서비스로직실행후, refreshToken,AccessToken 재발급후 리턴
         //refresh 토큰 재발행후 쿠키에 넣기, access 토큰 재발행후 헤더에 넣기.
-        jwtWriter.addJwtToHeader(response, result.getAccessToken());
-        jwtWriter.addJwtToCookie(response, result.getRefreshToken(), REFRESH_TOKEN_TIME);
+        jwtWebManager.addJwtToHeader(response, result.getAccessToken());
+        jwtWebManager.addJwtToCookie(response, result.getRefreshToken(), REFRESH_TOKEN_TIME);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

@@ -1,10 +1,11 @@
-package com.example.commerce_back_office.jwt;
+package com.example.commerce_back_office.filter;
 
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.Refresh;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.auth.LoginRequestDto;
-import com.example.commerce_back_office.dto.auth.RefreshResponseDto;
+import com.example.commerce_back_office.jwt.JwtUtil;
+import com.example.commerce_back_office.jwt.JwtWebManager;
 import com.example.commerce_back_office.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -33,12 +34,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final RefreshRepository refreshRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final JwtWriter jwtWriter;
+    private final JwtWebManager jwtWebManager;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,  JwtWriter jwtWriter,RefreshRepository refreshRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,  JwtWebManager jwtWebManager,RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.jwtWriter = jwtWriter;
+        this.jwtWebManager = jwtWebManager;
         this.refreshRepository = refreshRepository;
         setFilterProcessesUrl("/user/auth");
     }
@@ -76,8 +77,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, role, ACCESSION_TIME);
         String refreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, role, REFRESH_TOKEN_TIME);
 
-        jwtWriter.addJwtToHeader(response, accessToken); //Access 토큰 Http헤더에 넣기
-        jwtWriter.addJwtToCookie(response, refreshToken,REFRESH_TOKEN_TIME); //Refresh 토큰 쿠키에 넣기
+        jwtWebManager.addJwtToHeader(response, accessToken); //Access 토큰 Http헤더에 넣기
+        jwtWebManager.addJwtToCookie(response, refreshToken,REFRESH_TOKEN_TIME); //Refresh 토큰 쿠키에 넣기
 
         addRefreshEntity(email,refreshToken,REFRESH_TOKEN_TIME);
     }
