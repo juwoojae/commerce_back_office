@@ -1,8 +1,11 @@
 package com.example.commerce_back_office.jwt;
 
 import com.example.commerce_back_office.domain.UserRole;
+import com.example.commerce_back_office.domain.entity.Refresh;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.auth.LoginRequestDto;
+import com.example.commerce_back_office.dto.auth.RefreshResponseDto;
+import com.example.commerce_back_office.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 import static com.example.commerce_back_office.jwt.JwtConst.*;
 
@@ -26,14 +30,16 @@ import static com.example.commerce_back_office.jwt.JwtConst.*;
 @Slf4j(topic = "로그인 필터")
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+    private final RefreshRepository refreshRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final JwtWriter jwtWriter;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,  JwtWriter jwtWriter) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,  JwtWriter jwtWriter,RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.jwtWriter = jwtWriter;
+        this.refreshRepository = refreshRepository;
         setFilterProcessesUrl("/user/auth");
     }
 
@@ -72,6 +78,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         jwtWriter.addJwtToHeader(response, accessToken); //Access 토큰 Http헤더에 넣기
         jwtWriter.addJwtToCookie(response, refreshToken,REFRESH_TOKEN_TIME); //Refresh 토큰 쿠키에 넣기
+
+        addRefreshEntity(email,refreshToken,REFRESH_TOKEN_TIME);
     }
 
     //authenticationManger 의 검증이 실패했으면 실행하는 메서드
@@ -79,5 +87,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("로그인 인증 실패");
         response.setStatus(401);
+    }
+
+    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+        refreshRepository.save(new Refresh(refresh, date.toString(), username));
     }
 }

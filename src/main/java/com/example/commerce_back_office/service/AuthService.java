@@ -3,10 +3,7 @@ package com.example.commerce_back_office.service;
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.Refresh;
 import com.example.commerce_back_office.domain.entity.User;
-import com.example.commerce_back_office.dto.auth.JoinByAdminRequestDto;
-import com.example.commerce_back_office.dto.auth.JoinByAdminResponseDto;
-import com.example.commerce_back_office.dto.auth.JoinRequestDto;
-import com.example.commerce_back_office.dto.auth.JoinResponseDto;
+import com.example.commerce_back_office.dto.auth.*;
 import com.example.commerce_back_office.exception.EmailAlreadyExistException;
 import com.example.commerce_back_office.exception.ExpiredException;
 import com.example.commerce_back_office.exception.InvalidTokenException;
@@ -84,8 +81,8 @@ public class AuthService {
     }
 
 
-    public void reissueToken(String refreshToken) {
-
+    public RefreshResponseDto reissueToken(String refreshToken) {
+        log.info("reissueToken {}", refreshToken);
         if (refreshToken == null) {
             log.error("토큰이 유실되었음");
             throw new TokenMissingException("토큰 유실");   //403
@@ -94,43 +91,35 @@ public class AuthService {
         Boolean isExist = refreshRepository.existsByRefreshToken(refreshToken);
 
         if (!isExist) {
+            log.info("이 토큰은 사용할수 없음");
             throw new InvalidTokenException("사용할수 없는 토큰");
         }
 
-        Claims claims = null;
-
-        try {
-            claims =  jwtUtil.getClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
-        } catch (ExpiredJwtException e) {
-            log.error("토큰이 이미 만료됨");
-            throw new ExpiredException("토큰이 만료되었음");  //토큰 만료 401
-        } catch (JwtException e) {
-            log.error("사용할수 없는 토큰");
-            throw new InvalidTokenException("사용할수 없는 토큰");  //토큰이 위조/손상 401
-        }
-
-        if (!jwtUtil.getClaims(refreshToken).get(CLAIM_CATEGORY, String.class)
+        Claims claims = jwtUtil.validationAndgetClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
+        log.info("여기까진 된다고?");
+        if (!claims.get(CLAIM_CATEGORY, String.class)
                 .equals(CATEGORY_REFRESH)) {
             throw new InvalidTokenException("사용할수 없는 토큰");  //401
         }
-
-
         //유저 정보
-        String email = jwtUtil.getClaims(refreshToken).get(CLAIM_EMAIL, String.class);
-        UserRole role = jwtUtil.getClaims(refreshToken).get(CLAIM_ROLE, UserRole.class);
+        String email = claims.get(CLAIM_EMAIL, String.class);
+//        UserRole role = claims.get(CLAIM_ROLE, UserRole.class);
+        String roleString = claims.get(CLAIM_ROLE, String.class);
+        UserRole userRole = UserRole.valueOf(roleString);
         //토큰 생성
-        String newAccessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, role, ACCESSION_TIME);//refresh 토큰 생성
+        String newAccessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, userRole, ACCESSION_TIME);//refresh 토큰 생성
         //refresh Rotate
-        String newRefreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, role, REFRESH_TOKEN_TIME);
+        String newRefreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, userRole, REFRESH_TOKEN_TIME);
 
-        refreshRepository.existsByRefreshToken(refreshToken); //DB 의 refresh 토큰 삭제
+        refreshRepository.deleteByRefreshToken(refreshToken); //DB 의 refresh 토큰 삭제
+
         addRefreshEntity(email, newRefreshToken, REFRESH_TOKEN_TIME);
+        return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
-
         Refresh newRefresh = new Refresh(refresh, date.toString(), email);
         refreshRepository.save(newRefresh);
     }

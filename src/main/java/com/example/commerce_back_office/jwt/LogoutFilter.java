@@ -47,7 +47,6 @@ public class LogoutFilter extends GenericFilterBean {
         }
 
         String refresh = getCookie(request);
-        Claims claims = null;
 
         if (refresh == null) {
             log.error("refresh 토큰이 비어있음");
@@ -55,13 +54,8 @@ public class LogoutFilter extends GenericFilterBean {
             return;
         }
 
-        try {
-           claims = jwtUtil.getClaims(refresh);
-        } catch (ExpiredJwtException e) {
-            log.error("refresh 토큰 검증 실패");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //이미 로그아웃이 되었거나
-            return;
-        }
+        Claims claims  = jwtUtil.validationAndgetClaims(refresh);
+
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = claims.get(CLAIM_CATEGORY, String.class);

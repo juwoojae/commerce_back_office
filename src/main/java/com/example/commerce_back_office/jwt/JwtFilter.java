@@ -36,20 +36,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(StringUtils.hasText(tokenValue)) {
             String token = tokenValue.substring(7);
-            try {
-                claims = jwtUtil.getClaims(token);
-            }catch (ExpiredJwtException e){
-                log.error("토큰이 만료됨 {}",e.getMessage());
-            }catch (JwtException e){
-                log.error("토큰이 조작됨 {}",e.getMessage());
-            }
+            claims = jwtUtil.validationAndgetClaims(token);
             String email = claims.get(CLAIM_EMAIL, String.class);
-            try {
-                setAuthentication(email);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
-            }
+
+            setAuthentication(email);
         }
         filterChain.doFilter(request, response);
 

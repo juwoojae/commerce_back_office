@@ -1,6 +1,7 @@
 package com.example.commerce_back_office.config;
 
 import com.example.commerce_back_office.jwt.*;
+import com.example.commerce_back_office.repository.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * 스프링 시큐리티 필터 통합 등록 클래스
- *
+ * <p>
  * 커스텀한 시큐리티의 필터를 등록 및 설정
  */
 @Configuration
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final JwtWriter jwtWriter;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final UserDetailsService userDetailsService;
+    private final RefreshRepository refreshRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -57,7 +59,7 @@ public class SecurityConfig {
 
         //로그인 필터 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,jwtWriter), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtWriter, refreshRepository), UsernamePasswordAuthenticationFilter.class);
         //로그 아웃 필터 추가
         http
                 .addFilterAt(new LogoutFilter(jwtUtil, jwtWriter), LoginFilter.class);
