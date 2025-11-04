@@ -4,11 +4,8 @@ import com.example.commerce_back_office.jwt.JwtFilter;
 import com.example.commerce_back_office.jwt.JwtUtil;
 import com.example.commerce_back_office.jwt.JwtWriter;
 import com.example.commerce_back_office.jwt.LoginFilter;
-import com.example.commerce_back_office.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -16,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -53,7 +49,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/user/register", "/user/auth").permitAll() //모든 권한에 대해서 허용
-                        .requestMatchers("/admin").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
+                        .requestMatchers("/admin/**").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
                         .anyRequest().authenticated()); //그 이외 로그인한 사용자에 대해 허용
 
         //로그인 필터 추가

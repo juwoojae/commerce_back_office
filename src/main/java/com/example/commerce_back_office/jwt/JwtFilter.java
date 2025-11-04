@@ -1,6 +1,5 @@
 package com.example.commerce_back_office.jwt;
 
-import com.example.commerce_back_office.exception.ExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

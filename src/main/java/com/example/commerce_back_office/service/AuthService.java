@@ -2,6 +2,8 @@ package com.example.commerce_back_office.service;
 
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.User;
+import com.example.commerce_back_office.dto.auth.JoinByAdminRequestDto;
+import com.example.commerce_back_office.dto.auth.JoinByAdminResponseDto;
 import com.example.commerce_back_office.dto.auth.JoinRequestDto;
 import com.example.commerce_back_office.dto.auth.JoinResponseDto;
 import com.example.commerce_back_office.exception.EmailAlreadyExistException;
@@ -38,6 +40,39 @@ public class AuthService {
         String name = joinRequestDto.getName();
         UserRole role = UserRole.CONSUMER; //일반 회원가입에서는 default 가 CONSUMER
 
+        checkDuplicateEmail(email);
+        User data = new User(name, email, passwordEncoder.encode(password), role);
+        userRepository.save(data);
+
+        return JoinResponseDto.from(data);
+    }
+    /**
+     * 관리자 회원가입 기능 구현
+     * 관리자 회원가입의 경우 UserRole 을 받아온것으로 권한이 부여
+     * 이메일 중복 가입 방지 및 형식 검증
+     * @param joinByAdminRequestDto
+     * @return joinResponseDto
+     */
+
+    @Transactional
+    public JoinByAdminResponseDto joinByAdmin(JoinByAdminRequestDto joinByAdminRequestDto) {
+        log.info("joinByAdminRequestDto {}", joinByAdminRequestDto);
+        String email = joinByAdminRequestDto.getEmail();
+        String password = joinByAdminRequestDto.getPassword();
+        String name = joinByAdminRequestDto.getName();
+        UserRole role = joinByAdminRequestDto.getRole(); //일반 회원가입에서는 default 가 CONSUMER
+
+        //중복가입 방지
+        checkDuplicateEmail(email);
+        User data = new User(name, email, passwordEncoder.encode(password), role);
+        userRepository.save(data);
+
+        return JoinByAdminResponseDto.from(data);
+    }
+
+
+
+    private void checkDuplicateEmail(String email) {
         //중복가입 방지
         Boolean isExist = userRepository.existsByEmail(email);
 
@@ -45,10 +80,6 @@ public class AuthService {
         if (isExist) {
             throw new EmailAlreadyExistException("이미 존재하는 이메일");
         }
-        User data = new User(name, email, passwordEncoder.encode(password), role);
-        userRepository.save(data);
-
-        return JoinResponseDto.from(data);
     }
 
 }
