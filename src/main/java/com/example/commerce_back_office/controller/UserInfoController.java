@@ -7,6 +7,7 @@ import com.example.commerce_back_office.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,10 +42,10 @@ public class UserInfoController {
      * @param id 조회할 유저의 ID
      * @return UserDetailResponseDto 해당 유저의 상세 정보와 HTTP 상태 코드 200
      */
+    @Secured("ROLE_ADMIN")
     @GetMapping("/{id}")
     public ResponseEntity<UserDetailResponseDto> getUsers(@PathVariable Long id) {
 
-        //TODO 관리자만 조회 가능
         UserDetailResponseDto users = userService.getOne(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(users);
@@ -70,9 +71,10 @@ public class UserInfoController {
      * @param request 수정할 정보를 담은 요청 DTO
      * @return 수정된 유저 정보 (UserDetailResponseDto)
      */
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/{id}")
     public ResponseEntity<UserDetailResponseDto> patchUsers(@PathVariable Long id, @RequestBody UserRequestDto request) {
-        //TODO - 권한이 없는 사용자의 요청은 `403 Forbidden` 으로 처리
+
         UserDetailResponseDto users = userService.patch(id, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(users);
