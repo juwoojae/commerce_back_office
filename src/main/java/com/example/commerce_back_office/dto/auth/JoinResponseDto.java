@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 /**
  * 회원가입시 클라이언트의 응답 데이터를 담는 DTO
- *
+ * test
  */
 @Getter
 public class JoinResponseDto {
