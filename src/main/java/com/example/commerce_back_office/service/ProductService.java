@@ -47,7 +47,7 @@ public class ProductService {
 
     // 2 특정 상품 상세 조회
     // - 존재하지 않는 ID 요청 시 RuntimeException 발생
-    public ProductDetailResponse getProduct(Integer id) {
+    public ProductDetailResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
         return toProductDetailResponse(product);
@@ -76,7 +76,7 @@ public class ProductService {
     // 4 상품 정보 수정
     // - 재고 0 이하 입력 불가
     // - 전달된 필드만 수정
-    public ProductDetailResponse updateProduct(Integer id, ProductUpdateRequest request) {
+    public ProductDetailResponse updateProduct(Long id, ProductUpdateRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
 

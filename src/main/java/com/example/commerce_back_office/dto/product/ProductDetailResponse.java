@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class ProductDetailResponse {
 
     // 상품 ID (DB PK)
-    private Integer id;
+    private Long id;
 
     // 상품명
     private String name;
