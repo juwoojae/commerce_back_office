@@ -24,9 +24,21 @@ public enum SuccessCode implements BaseCode {
     //Auth
     JOIN_PROCESS(HttpStatus.CREATED, "유저 회원가입 성공"),
     JOIN_JOIN_PROCESS_BY_ADMIN(HttpStatus.CREATED, "관리자에 의한 회원가입 성공"),
-    REFRESH_PROCESS(HttpStatus.OK, "토큰 재발행 성공");
+    REFRESH_PROCESS(HttpStatus.OK, "토큰 재발행 성공"),
 
+    //Order
+    CREATE_ORDER(HttpStatus.CREATED, "주문 등록 성공"),
+    GET_ORDERS(HttpStatus.OK, "주문 리스트 조회 성공"),
+    GET_ORDER(HttpStatus.OK,"주문 상세 조회 성공"),
+    UPDATE_ORDER(HttpStatus.OK, "주문 정보 수정 성공"),
+    UPDATE_ORDER_STATUS(HttpStatus.OK, "주문 상태 수정 성공"),
 
+    //Review
+    CREATE_REVIEW(HttpStatus.CREATED, "리뷰 등록 성공"),
+    GET_REVIEWS(HttpStatus.OK, "리뷰 리스트 조회 성공"),
+    GET_REVIEW(HttpStatus.OK,"리뷰 상세 조회 성공"),
+    UPDATE_REVIEW(HttpStatus.OK, "리뷰 정보 수정 성공"),
+    DELETE_REVIEW(HttpStatus.OK, "리뷰 정보 수정 성공");
 
     private final HttpStatus status;
     private final String message;
@@ -47,3 +59,4 @@ public enum SuccessCode implements BaseCode {
         return this.message;
     }
 }
+
