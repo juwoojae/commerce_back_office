@@ -34,7 +34,7 @@ public class AdminReviewService {
 
     public void delete(Long id) {
         //id 검사
-        Review review = reviewRepository.findById(id).orElseThrow(
+        reviewRepository.findById(id).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 id입니다.")
         );
 
