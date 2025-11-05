@@ -3,10 +3,7 @@ package com.example.commerce_back_office.service;
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.Refresh;
 import com.example.commerce_back_office.domain.entity.User;
-import com.example.commerce_back_office.dto.auth.JoinByAdminRequestDto;
-import com.example.commerce_back_office.dto.auth.JoinByAdminResponseDto;
-import com.example.commerce_back_office.dto.auth.JoinRequestDto;
-import com.example.commerce_back_office.dto.auth.JoinResponseDto;
+import com.example.commerce_back_office.dto.auth.*;
 import com.example.commerce_back_office.exception.EmailAlreadyExistException;
 import com.example.commerce_back_office.exception.ExpiredException;
 import com.example.commerce_back_office.exception.InvalidTokenException;
@@ -47,6 +44,7 @@ public class AuthService {
 
     @Transactional
     public JoinResponseDto join(JoinRequestDto joinRequestDto) {
+
         log.info("joinRequestDto {}", joinRequestDto);
         String email = joinRequestDto.getEmail();
         String password = joinRequestDto.getPassword();
@@ -69,6 +67,7 @@ public class AuthService {
 
     @Transactional
     public JoinByAdminResponseDto joinByAdmin(JoinByAdminRequestDto joinByAdminRequestDto) {
+
         log.info("joinByAdminRequestDto {}", joinByAdminRequestDto);
         String email = joinByAdminRequestDto.getEmail();
         String password = joinByAdminRequestDto.getPassword();
@@ -83,59 +82,65 @@ public class AuthService {
         return JoinByAdminResponseDto.from(data);
     }
 
+    /**
+     * refresh 토큰과 Access 토큰을 재발행한뒤
+     * dto 로 넣어서 넘겨주는 메서드
+     * 그리고 refreshEntity 에서 이전에 사용했던 refresh 토큰을 모두 말소함
+     * @param refreshToken
+     * @return
+     */
+    @Transactional
+    public RefreshResponseDto reissueToken(String refreshToken) {
 
-    public void reissueToken(String refreshToken) {
+        log.info("reissueToken {}", refreshToken);
 
-        if (refreshToken == null) {
-            log.error("토큰이 유실되었음");
-            throw new TokenMissingException("토큰 유실");   //403
-        }
+        Claims claims = jwtUtil.validationAndgetClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
 
         Boolean isExist = refreshRepository.existsByRefreshToken(refreshToken);
 
         if (!isExist) {
+            log.info("이 토큰은 사용할수 없음");
             throw new InvalidTokenException("사용할수 없는 토큰");
         }
 
-        Claims claims = null;
-
-        try {
-            claims =  jwtUtil.getClaims(refreshToken); //토큰만료 + 위조 + 손상 검증
-        } catch (ExpiredJwtException e) {
-            log.error("토큰이 이미 만료됨");
-            throw new ExpiredException("토큰이 만료되었음");  //토큰 만료 401
-        } catch (JwtException e) {
-            log.error("사용할수 없는 토큰");
-            throw new InvalidTokenException("사용할수 없는 토큰");  //토큰이 위조/손상 401
-        }
-
-        if (!jwtUtil.getClaims(refreshToken).get(CLAIM_CATEGORY, String.class)
+        if (!claims.get(CLAIM_CATEGORY, String.class)
                 .equals(CATEGORY_REFRESH)) {
             throw new InvalidTokenException("사용할수 없는 토큰");  //401
         }
-
-
         //유저 정보
-        String email = jwtUtil.getClaims(refreshToken).get(CLAIM_EMAIL, String.class);
-        UserRole role = jwtUtil.getClaims(refreshToken).get(CLAIM_ROLE, UserRole.class);
-        //토큰 생성
-        String newAccessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, role, ACCESSION_TIME);//refresh 토큰 생성
-        //refresh Rotate
-        String newRefreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, role, REFRESH_TOKEN_TIME);
+        String email = claims.get(CLAIM_EMAIL, String.class);
 
-        refreshRepository.existsByRefreshToken(refreshToken); //DB 의 refresh 토큰 삭제
+        String roleString = claims.get(CLAIM_ROLE, String.class);
+        UserRole userRole = UserRole.valueOf(roleString);
+
+        //토큰 생성
+        String newAccessToken = jwtUtil.createJwt(CATEGORY_ACCESS, email, userRole, ACCESSION_TIME);//refresh 토큰 생성
+        //refresh Rotate
+        String newRefreshToken = jwtUtil.createJwt(CATEGORY_REFRESH, email, userRole, REFRESH_TOKEN_TIME);
+
+        refreshRepository.deleteByRefreshToken(refreshToken); //DB 의 refresh 토큰 삭제
+
         addRefreshEntity(email, newRefreshToken, REFRESH_TOKEN_TIME);
+        return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
+    /**
+     * 해당 refresh 토큰을 서버가 관리하는 refresh 토큰 세션에 추가하기
+     * @param email : 회원 id
+     * @param refresh : refresh 토큰
+     * @param expiredMs : refresh 토큰 만료 시간
+     */
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
-
         Refresh newRefresh = new Refresh(refresh, date.toString(), email);
         refreshRepository.save(newRefresh);
     }
 
-
+    /**
+     * 해당 이메일과 같은 이메일이 user db 정보에 존재하는지 판단하기.
+     * @param email
+     */
     private void checkDuplicateEmail(String email) {
         //중복가입 방지
         Boolean isExist = userRepository.existsByEmail(email);

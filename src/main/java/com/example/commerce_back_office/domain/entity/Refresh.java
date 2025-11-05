@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * 블랙 리스팅을 위해서
  * 서버에 refresh 토큰 세션 유지
@@ -28,4 +30,5 @@ public class Refresh {
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.email = email;
     }
+
 }

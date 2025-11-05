@@ -1,8 +1,7 @@
-package com.example.commerce_back_office.jwt;
+package com.example.commerce_back_office.filter;
 
+import com.example.commerce_back_office.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,20 +35,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(StringUtils.hasText(tokenValue)) {
             String token = tokenValue.substring(7);
-            try {
-                claims = jwtUtil.getClaims(token);
-            }catch (ExpiredJwtException e){
-                log.error("토큰이 만료됨 {}",e.getMessage());
-            }catch (JwtException e){
-                log.error("토큰이 조작됨 {}",e.getMessage());
-            }
+            claims = jwtUtil.validationAndgetClaims(token);
             String email = claims.get(CLAIM_EMAIL, String.class);
-            try {
-                setAuthentication(email);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
-            }
+
+            setAuthentication(email);
         }
         filterChain.doFilter(request, response);
 
@@ -60,6 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @param username
      */
     public void setAuthentication (String username){
+
         log.info("JWT 인증 성공");
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = createAuthentication(username); //유저 정보로 인증 객체 생성
@@ -74,6 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @return
      */
     private Authentication createAuthentication (String username){
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username); //username 을 DB 에서 찾아 올때
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());  //인가
     }
