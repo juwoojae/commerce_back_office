@@ -1,13 +1,14 @@
 package com.example.commerce_back_office.controller;
 
 import com.example.commerce_back_office.domain.OrderStatus;
-import com.example.commerce_back_office.dto.order.OrderCreateRequest;
-import com.example.commerce_back_office.dto.order.OrderResponse;
-import com.example.commerce_back_office.dto.order.OrderUpdateRequest;
+import com.example.commerce_back_office.domain.UserRole;
+import com.example.commerce_back_office.domain.entity.User;
+import com.example.commerce_back_office.dto.CustomUserDetails;
+import com.example.commerce_back_office.dto.order.*;
 import com.example.commerce_back_office.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,58 +20,67 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // 1. 주문 생성
+    // 주문 생성
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
-            @RequestBody OrderCreateRequest request) {
-        OrderResponse order = orderService.createOrder(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+            @RequestBody OrderCreateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(orderService.createOrder(request, userDetails));
     }
 
-    // 2. 주문 리스트 조회
+    // 주문 목록 조회
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getOrders(
-            @RequestParam Long userId,
-            @RequestParam(required = false, defaultValue = "false") boolean admin) {
-        List<OrderResponse> orders = orderService.getOrders(userId, admin);
-        return ResponseEntity.ok(orders);
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        UserRole role = userDetails.getUser().getRole();
+
+        return ResponseEntity.ok(orderService.getOrders(userDetails));
     }
 
-    // 3. 특정 주문 조회
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrder(
             @PathVariable Long orderId,
-            @RequestParam Long userId,
-            @RequestParam(required = false, defaultValue = "false") boolean admin) {
-        OrderResponse order = orderService.getOrder(orderId, userId, admin);
-        return ResponseEntity.ok(order);
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        // 로그인 유저 정보
+        User user = userDetails.getUser();
+        // 로그인 유저 권한
+        UserRole role = user.getRole();
+
+
+        OrderResponse orderResponse = orderService.getOrder(orderId, user, role);
+        return ResponseEntity.ok(orderResponse);
     }
 
-    // 4. 주문 수정
-    @PatchMapping("/{orderId}")
+
+    // 주문 수정
+    @PatchMapping ("/{orderId}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable Long orderId,
-            @RequestParam Long userId,
-            @RequestParam(required = false, defaultValue = "false") boolean admin,
-            @RequestBody OrderUpdateRequest request) {
-        OrderResponse order = orderService.updateOrder(orderId, userId, admin, request);
-        return ResponseEntity.ok(order);
+            @RequestBody OrderUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        UserRole role = userDetails.getUser().getRole();
+
+        return ResponseEntity.ok(orderService.updateOrder(orderId, request, userDetails));
     }
 
-    // 5. 주문 상태 업데이트
+    // 주문 상태 업데이트
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long orderId,
-            @RequestParam Long userId,
-            @RequestParam(required = false, defaultValue = "false") boolean admin,
-            @RequestParam OrderStatus status
-    ) {
-        OrderResponse order = orderService.updateOrderStatus(orderId, status, userId, admin);
-        return ResponseEntity.ok(order);
+            @RequestBody OrderStatusUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        UserRole role = userDetails.getUser().getRole();
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, request.getStatus(), userDetails));
     }
 }
-
-
-
 
 
