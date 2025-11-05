@@ -80,7 +80,14 @@ public class AuthService {
         return JoinByAdminResponseDto.from(data);
     }
 
-
+    /**
+     * refresh 토큰과 Access 토큰을 재발행한뒤
+     * dto 로 넣어서 넘겨주는 메서드
+     * 그리고 refreshEntity 에서 이전에 사용했던 refresh 토큰을 모두 말소함
+     * @param refreshToken
+     * @return
+     */
+    @Transactional
     public RefreshResponseDto reissueToken(String refreshToken) {
         log.info("reissueToken {}", refreshToken);
 
@@ -114,6 +121,12 @@ public class AuthService {
         return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
+    /**
+     * 해당 refresh 토큰을 서버가 관리하는 refresh 토큰 세션에 추가하기
+     * @param email : 회원 id
+     * @param refresh : refresh 토큰
+     * @param expiredMs : refresh 토큰 만료 시간
+     */
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
@@ -121,7 +134,10 @@ public class AuthService {
         refreshRepository.save(newRefresh);
     }
 
-
+    /**
+     * 해당 이메일과 같은 이메일이 user db 정보에 존재하는지 판단하기.
+     * @param email
+     */
     private void checkDuplicateEmail(String email) {
         //중복가입 방지
         Boolean isExist = userRepository.existsByEmail(email);

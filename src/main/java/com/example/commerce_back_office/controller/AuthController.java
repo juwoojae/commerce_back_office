@@ -6,6 +6,7 @@ import com.example.commerce_back_office.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,8 @@ public class AuthController {
      * 회원 가입처리 컨트롤러
      */
     @PostMapping("/user/register")
-    public ResponseEntity<JoinResponseDto> joinProcess(@RequestBody JoinRequestDto joinRequestDto) {
+    public ResponseEntity<JoinResponseDto> joinProcess(@Valid @RequestBody JoinRequestDto joinRequestDto) {
+
         log.info("joinProcess {} {}", joinRequestDto.getEmail(), joinRequestDto.getPassword());
         JoinResponseDto result = authService.join(joinRequestDto);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -40,7 +42,8 @@ public class AuthController {
      */
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin/register")
-    public ResponseEntity<JoinByAdminResponseDto> joinByAdminProcess(@RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
+    public ResponseEntity<JoinByAdminResponseDto> joinByAdminProcess(@Valid @RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
+
         log.info("joinProcess {} {}", joinByAdminRequestDto.getEmail(), joinByAdminRequestDto.getPassword());
         JoinByAdminResponseDto result = authService.joinByAdmin(joinByAdminRequestDto);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -51,6 +54,7 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponseDto> refreshProcess(HttpServletRequest request, HttpServletResponse response) {
+
         log.info("refreshProcess 실행");
         String refreshToken = getRefreshTokenFromCookies(request);//쿠키에서 refreshToken 꺼내기
         RefreshResponseDto result = authService.reissueToken(refreshToken);//서비스로직실행후, refreshToken,AccessToken 재발급후 리턴
