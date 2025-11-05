@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name ="products") // DB 테이블명 지정
-@NoArgsConstructor // 파라미터 없는 기본 생성자 자동 생성
-public class Product extends BaseEntity { // BaseEntity 상속: createdDate, lastModifiedDate 포함
+@Table(name ="products")
+@NoArgsConstructor
+public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // PK 자동 생성
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     //상품명
@@ -34,6 +34,7 @@ public class Product extends BaseEntity { // BaseEntity 상속: createdDate, las
     private String description;
 
 
+    //상품 생성시 생성자
     public Product(String name, Integer price, Integer stock, Category category, String description) {
         this.name = name;
         this.price = price;

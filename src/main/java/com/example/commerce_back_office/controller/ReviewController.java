@@ -30,7 +30,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponseDto> createReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
-            @PathVariable int productId,
+            @PathVariable long productId,
             @Valid @RequestBody ReviewRequestDto request) {
 
         ReviewResponseDto response = reviewService.save(userPrincipal.getUser(), productId, request);

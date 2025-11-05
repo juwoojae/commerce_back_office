@@ -22,7 +22,7 @@ public class ReviewService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public ReviewResponseDto save(User user, int productId, ReviewRequestDto request) {
+    public ReviewResponseDto save(User user, Long productId, ReviewRequestDto request) {
 
         //상품 검사
         Product product = productRepository.findById(productId).orElseThrow(

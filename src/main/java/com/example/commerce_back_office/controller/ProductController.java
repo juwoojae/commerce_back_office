@@ -18,7 +18,7 @@ import static com.example.commerce_back_office.exception.code.SuccessCode.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
-@RequestMapping("/products") // 기본 URL 경로 설정 (/products)
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
