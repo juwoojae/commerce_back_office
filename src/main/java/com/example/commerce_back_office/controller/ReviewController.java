@@ -1,6 +1,5 @@
 package com.example.commerce_back_office.controller;
 
-import com.example.commerce_back_office.domain.entity.Review;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
@@ -56,6 +55,12 @@ public class ReviewController {
         ReviewResponseDto response = reviewService.patch(id,request);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+        reviewService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
