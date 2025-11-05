@@ -13,7 +13,7 @@ public class Product extends BaseEntity { // BaseEntity 상속: createdDate, las
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // PK 자동 생성
-    private Integer id;
+    private Long id;
 
     private String name; // 상품명
 
