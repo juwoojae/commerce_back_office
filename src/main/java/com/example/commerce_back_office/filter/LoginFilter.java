@@ -4,6 +4,8 @@ import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.Refresh;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.auth.LoginRequestDto;
+import com.example.commerce_back_office.exception.JsonParsingFailedException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.jwt.JwtUtil;
 import com.example.commerce_back_office.jwt.JwtWebManager;
 import com.example.commerce_back_office.repository.RefreshRepository;
@@ -22,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.util.Date;
 
+import static com.example.commerce_back_office.exception.code.ErrorCode.JSON_PARSING_FAILED;
 import static com.example.commerce_back_office.jwt.JwtConst.*;
 
 /**
@@ -51,7 +54,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (IOException e) {
             log.error("로그인 email, password 파싱 에러 ({})",e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            throw new JsonParsingFailedException(JSON_PARSING_FAILED);
         }
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

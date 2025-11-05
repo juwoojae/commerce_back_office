@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
+import static com.example.commerce_back_office.exception.code.ErrorCode.EMAIL_ALREADY_EXIST;
+import static com.example.commerce_back_office.exception.code.ErrorCode.TOKEN_INVALID;
 import static com.example.commerce_back_office.jwt.JwtConst.*;
 
 @Slf4j(topic = "AuthService")
@@ -100,12 +102,13 @@ public class AuthService {
 
         if (!isExist) {
             log.info("이 토큰은 사용할수 없음");
-            throw new InvalidTokenException("사용할수 없는 토큰");
+            throw new InvalidTokenException(TOKEN_INVALID);
         }
 
         if (!claims.get(CLAIM_CATEGORY, String.class)
                 .equals(CATEGORY_REFRESH)) {
-            throw new InvalidTokenException("사용할수 없는 토큰");  //401
+            log.info("이 토큰은 사용할수 없음");
+            throw new InvalidTokenException(TOKEN_INVALID);  //401
         }
         //유저 정보
         String email = claims.get(CLAIM_EMAIL, String.class);
@@ -147,7 +150,7 @@ public class AuthService {
 
         //이메일 중복 가입 검증
         if (isExist) {
-            throw new EmailAlreadyExistException("이미 존재하는 이메일");
+            throw new EmailAlreadyExistException(EMAIL_ALREADY_EXIST);
         }
     }
 

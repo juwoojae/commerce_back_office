@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.controller;
 
+import com.example.commerce_back_office.dto.CommonResponse;
 import com.example.commerce_back_office.dto.product.ProductCreateRequest;
 import com.example.commerce_back_office.dto.product.ProductUpdateRequest;
 import com.example.commerce_back_office.dto.product.ProductDetailResponse;
@@ -12,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.commerce_back_office.exception.code.SuccessCode.*;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/products") // 기본 URL 경로 설정 (/products)
@@ -27,11 +31,11 @@ public class ProductController {
      * - keyword가 있으면 상품명 또는 카테고리 기준으로 검색
      */
     @GetMapping
-    public ResponseEntity<List<ProductListResponse>> getProducts(
+    public ResponseEntity<CommonResponse<List<ProductListResponse>>> getProducts(
             @RequestParam(required = false) String keyword // 검색어 optional
     ) {
         List<ProductListResponse> products = productService.getProducts(keyword);
-        return ResponseEntity.ok(products);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_PRODUCTS, products));
     }
 
     /**
@@ -41,9 +45,10 @@ public class ProductController {
      * - 존재하지 않는 ID 요청 시 예외 발생
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> getProduct(@PathVariable Long id) {
+    public ResponseEntity<CommonResponse<ProductDetailResponse>> getProduct(@PathVariable Integer id) {
+
         ProductDetailResponse product = productService.getProduct(id);
-        return ResponseEntity.ok(product);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_PRODUCT, product));
     }
 
     /**
@@ -54,11 +59,11 @@ public class ProductController {
      * - 등록 후 생성된 상품 정보를 반환
      */
     @PostMapping
-    public ResponseEntity<ProductDetailResponse> createProduct(
+    public ResponseEntity<CommonResponse<ProductDetailResponse>> createProduct(
             @Valid @RequestBody ProductCreateRequest request
     ) {
         ProductDetailResponse createdProduct = productService.createProduct(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(CREATE_PRODUCT, createdProduct));
     }
 
     /**
@@ -69,12 +74,13 @@ public class ProductController {
      * - 수정 후 업데이트된 상품 정보를 반환
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> updateProduct(
-            @PathVariable Long id,
+
+    public ResponseEntity<CommonResponse<ProductDetailResponse>> updateProduct(
+            @PathVariable Integer id,
             @Valid @RequestBody ProductUpdateRequest request
     ) {
         ProductDetailResponse updatedProduct = productService.updateProduct(id, request);
-        return ResponseEntity.ok(updatedProduct);
+        return  ResponseEntity.status(OK).body(CommonResponse.of(UPDATE_PRODUCT, updatedProduct));
     }
 }
 

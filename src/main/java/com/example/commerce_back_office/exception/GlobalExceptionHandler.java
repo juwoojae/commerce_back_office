@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.exception;
 
+import com.example.commerce_back_office.dto.CommonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -49,6 +50,14 @@ public class GlobalExceptionHandler {
         body.put("error", "Not Found"); // 오류 타입
         body.put("message", e.getMessage()); // 예외 메시지
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /**
+     * 도메인 정책 위반 - 회원 등록에서 하나의 이메일을 중복등록 하는경우
+     */
+    @ExceptionHandler (EmailAlreadyExistException.class)
+    public ResponseEntity<CommonResponse<Object>> handleUserDomainErrors(EmailAlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(CommonResponse.of(ex.getErrorCode()));
     }
 }
 

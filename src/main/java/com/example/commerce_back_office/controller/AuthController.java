@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.controller;
 
+import com.example.commerce_back_office.dto.CommonResponse;
 import com.example.commerce_back_office.dto.auth.*;
 import com.example.commerce_back_office.jwt.JwtWebManager;
 import com.example.commerce_back_office.service.AuthService;
@@ -7,17 +8,17 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.commerce_back_office.exception.code.SuccessCode.*;
 import static com.example.commerce_back_office.jwt.JwtConst.REFRESH_HEADER;
 import static com.example.commerce_back_office.jwt.JwtConst.REFRESH_TOKEN_TIME;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestController
@@ -26,16 +27,17 @@ public class AuthController {
 
     private final JwtWebManager jwtWebManager;
     private final AuthService authService;
+
     /**
      * 회원 가입처리 컨트롤러
      */
     @PostMapping("/user/register")
-    public ResponseEntity<JoinResponseDto> joinProcess(@Valid @RequestBody JoinRequestDto joinRequestDto) {
+    public ResponseEntity<CommonResponse<JoinResponseDto>> joinProcess(@Valid @RequestBody JoinRequestDto joinRequestDto) {
 
         log.info("joinProcess {} {}", joinRequestDto.getEmail(), joinRequestDto.getPassword());
         JoinResponseDto result = authService.join(joinRequestDto);
 
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(JOIN_JOIN_PROCESS_BY_ADMIN, result));
     }
 
     /**
@@ -43,12 +45,13 @@ public class AuthController {
      */
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin/register")
-    public ResponseEntity<JoinByAdminResponseDto> joinByAdminProcess(@Valid @RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
+    public ResponseEntity<CommonResponse<JoinByAdminResponseDto>> joinByAdminProcess(
+            @Valid @RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
 
         log.info("joinByAdminProcess {} {}", joinByAdminRequestDto.getEmail(), joinByAdminRequestDto.getPassword());
         JoinByAdminResponseDto result = authService.joinByAdmin(joinByAdminRequestDto);
 
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(JOIN_PROCESS, result));
     }
 
     /**
@@ -58,7 +61,7 @@ public class AuthController {
      * refresh 토큰 재발행후 쿠키에 넣기, access 토큰 재발행후 헤더에 넣기.
      */
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponseDto> refreshProcess(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<CommonResponse<RefreshResponseDto>> refreshProcess(HttpServletRequest request, HttpServletResponse response) {
 
         log.info("refreshProcess 실행");
         String refreshToken = getRefreshTokenFromCookies(request);
@@ -67,7 +70,7 @@ public class AuthController {
         jwtWebManager.addJwtToHeader(response, result.getAccessToken());
         jwtWebManager.addJwtToCookie(response, result.getRefreshToken(), REFRESH_TOKEN_TIME);
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(REFRESH_PROCESS, result));
     }
 
     /**

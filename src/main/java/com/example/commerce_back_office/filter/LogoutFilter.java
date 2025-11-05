@@ -2,6 +2,7 @@ package com.example.commerce_back_office.filter;
 
 
 import com.example.commerce_back_office.exception.InvalidTokenException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.jwt.JwtUtil;
 import com.example.commerce_back_office.jwt.JwtWebManager;
 import io.jsonwebtoken.Claims;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.GenericFilterBean;
 import java.io.IOException;
 
+import static com.example.commerce_back_office.exception.code.ErrorCode.TOKEN_INVALID;
 import static com.example.commerce_back_office.jwt.JwtConst.*;
 
 /**
@@ -58,7 +60,8 @@ public class LogoutFilter extends GenericFilterBean {
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = claims.get(CLAIM_CATEGORY, String.class);
         if (!category.equals(REFRESH_HEADER)) {
-            throw new InvalidTokenException("사용할수 없는 토큰");
+            log.info("이 토큰은 사용할수 없음");
+            throw new InvalidTokenException(TOKEN_INVALID);
         }
 
         //Refresh 토큰 Cookie 값 0
