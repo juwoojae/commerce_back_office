@@ -34,6 +34,7 @@ public class AuthController {
 
         log.info("joinProcess {} {}", joinRequestDto.getEmail(), joinRequestDto.getPassword());
         JoinResponseDto result = authService.join(joinRequestDto);
+
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
@@ -44,23 +45,28 @@ public class AuthController {
     @PostMapping("/admin/register")
     public ResponseEntity<JoinByAdminResponseDto> joinByAdminProcess(@Valid @RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
 
-        log.info("joinProcess {} {}", joinByAdminRequestDto.getEmail(), joinByAdminRequestDto.getPassword());
+        log.info("joinByAdminProcess {} {}", joinByAdminRequestDto.getEmail(), joinByAdminRequestDto.getPassword());
         JoinByAdminResponseDto result = authService.joinByAdmin(joinByAdminRequestDto);
+
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     /**
      * refresh 토큰 재발행 컨트롤러
+     * 쿠키에서 refreshToken 꺼내기
+     * 서비스로직실행후, refreshToken,AccessToken 재발급후
+     * refresh 토큰 재발행후 쿠키에 넣기, access 토큰 재발행후 헤더에 넣기.
      */
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponseDto> refreshProcess(HttpServletRequest request, HttpServletResponse response) {
 
         log.info("refreshProcess 실행");
-        String refreshToken = getRefreshTokenFromCookies(request);//쿠키에서 refreshToken 꺼내기
-        RefreshResponseDto result = authService.reissueToken(refreshToken);//서비스로직실행후, refreshToken,AccessToken 재발급후 리턴
-        //refresh 토큰 재발행후 쿠키에 넣기, access 토큰 재발행후 헤더에 넣기.
+        String refreshToken = getRefreshTokenFromCookies(request);
+        RefreshResponseDto result = authService.reissueToken(refreshToken);
+
         jwtWebManager.addJwtToHeader(response, result.getAccessToken());
         jwtWebManager.addJwtToCookie(response, result.getRefreshToken(), REFRESH_TOKEN_TIME);
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -68,6 +74,7 @@ public class AuthController {
      * 쿠키에서 refresh 토큰을 가지고 오는 헬퍼메서드
      */
     private String getRefreshTokenFromCookies(HttpServletRequest request) {
+
         String refreshToken = null;  //이것도 JwtUtil 에 넣기
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {

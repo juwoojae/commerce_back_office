@@ -44,6 +44,7 @@ public class AuthService {
 
     @Transactional
     public JoinResponseDto join(JoinRequestDto joinRequestDto) {
+
         log.info("joinRequestDto {}", joinRequestDto);
         String email = joinRequestDto.getEmail();
         String password = joinRequestDto.getPassword();
@@ -66,6 +67,7 @@ public class AuthService {
 
     @Transactional
     public JoinByAdminResponseDto joinByAdmin(JoinByAdminRequestDto joinByAdminRequestDto) {
+
         log.info("joinByAdminRequestDto {}", joinByAdminRequestDto);
         String email = joinByAdminRequestDto.getEmail();
         String password = joinByAdminRequestDto.getPassword();
@@ -89,6 +91,7 @@ public class AuthService {
      */
     @Transactional
     public RefreshResponseDto reissueToken(String refreshToken) {
+
         log.info("reissueToken {}", refreshToken);
 
         Claims claims = jwtUtil.validationAndgetClaims(refreshToken); //토큰만료 + 위조 + 손상 검증

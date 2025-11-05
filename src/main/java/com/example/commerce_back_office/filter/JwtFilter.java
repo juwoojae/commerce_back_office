@@ -49,6 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @param username
      */
     public void setAuthentication (String username){
+
         log.info("JWT 인증 성공");
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = createAuthentication(username); //유저 정보로 인증 객체 생성
@@ -63,6 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @return
      */
     private Authentication createAuthentication (String username){
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username); //username 을 DB 에서 찾아 올때
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());  //인가
     }
