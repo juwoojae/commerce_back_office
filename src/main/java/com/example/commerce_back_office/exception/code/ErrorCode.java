@@ -12,6 +12,7 @@ public enum ErrorCode implements BaseCode {
     JSON_PARSING_FAILED(HttpStatus.BAD_REQUEST, "요청 데이터를 파싱할 수 없습니다."),
 
 
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저가 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품이 없습니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문이 없습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 리뷰가 없습니다."),
