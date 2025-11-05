@@ -1,9 +1,10 @@
 package com.example.commerce_back_office.controller;
 
-import com.example.commerce_back_office.dto.UserDetailResponseDto;
-import com.example.commerce_back_office.dto.UserRequestDto;
-import com.example.commerce_back_office.dto.UserResponseDto;
+import com.example.commerce_back_office.dto.user.UserDetailResponseDto;
+import com.example.commerce_back_office.dto.user.UserRequestDto;
+import com.example.commerce_back_office.dto.user.UserResponseDto;
 import com.example.commerce_back_office.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,10 +74,8 @@ public class UserInfoController {
      */
     @Secured("ROLE_ADMIN")
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDetailResponseDto> patchUsers(@PathVariable Long id, @RequestBody UserRequestDto request) {
-
+    public ResponseEntity<UserDetailResponseDto> patchUsers(@PathVariable Long id,@Valid @RequestBody UserRequestDto request) {
         UserDetailResponseDto users = userService.patch(id, request);
-
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 }

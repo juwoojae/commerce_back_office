@@ -1,7 +1,8 @@
-package com.example.commerce_back_office.dto;
+package com.example.commerce_back_office.dto.user;
 
 import com.example.commerce_back_office.domain.UserRole;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 /**
@@ -13,6 +14,7 @@ import lombok.Getter;
 public class UserRequestDto {
 
     @Nullable
+    @Size(min = 1, max = 100, message = "이름은 1자 이상 100자 이하로 입력해주세요.")
     private final String name;
     @Nullable
     private final UserRole role;

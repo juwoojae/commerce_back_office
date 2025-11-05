@@ -4,6 +4,7 @@ import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
 import com.example.commerce_back_office.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,22 +31,20 @@ public class ReviewController {
     public ResponseEntity<ReviewResponseDto> createReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable int productId,
-            @RequestBody ReviewRequestDto request) {
-        ReviewResponseDto response = reviewService.save(userPrincipal.getUser(), productId, request);
+            @Valid @RequestBody ReviewRequestDto request) {
 
+        ReviewResponseDto response = reviewService.save(userPrincipal.getUser(), productId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponseDto> getOneReview(@PathVariable Long id) {
         ReviewResponseDto response = reviewService.getOne(id);
-
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<ReviewResponseDto>> getReviews(@RequestParam(required = false) String keyword) {
-
         List<ReviewResponseDto> response;
 
         // 검색할 키워드가 없다면
@@ -59,10 +58,8 @@ public class ReviewController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ReviewResponseDto> patchReview(@PathVariable Long id, @RequestBody ReviewRequestDto request) {
-
+    public ResponseEntity<ReviewResponseDto> patchReview(@PathVariable Long id,@Valid @RequestBody ReviewRequestDto request) {
         ReviewResponseDto response = reviewService.patch(id,request);
-
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
