@@ -81,7 +81,7 @@ public class UserInfoController {
      */
     @Secured("ROLE_ADMIN")
     @PatchMapping("/{id}")
-    public ResponseEntity<CommonResponse<UserDetailResponseDto>> patchUsers(@PathVariable Long id,,@Valid @RequestBody UserRequestDto request) {
+    public ResponseEntity<CommonResponse<UserDetailResponseDto>> patchUsers(@PathVariable Long id,@Valid @RequestBody UserRequestDto request) {
 
         UserDetailResponseDto users = userService.patch(id, request);
 

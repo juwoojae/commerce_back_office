@@ -33,16 +33,23 @@ public class ProductService {
             Category category = null;
             try {
                 category = Category.valueOf(keyword.toUpperCase());
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
 
             // 이름 또는 카테고리 기준 검색
             products = productRepository.findByNameContainingIgnoreCaseOrCategory(keyword, category);
+
+            // 없는 상품, 카테고리일 경우 메세지 출력
+            if(products.isEmpty()){
+                throw new RuntimeException("검색 결과가 없습니다");
+            }
         }
 
         // 엔티티 → DTO 변환 후 반환
         return products.stream()
                 .map(this::toProductListResponse)
                 .collect(Collectors.toList());
+
     }
 
     // 2 특정 상품 상세 조회

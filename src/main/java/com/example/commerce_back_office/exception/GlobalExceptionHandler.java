@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice // 모든 컨트롤러에서 발생하는 예외를 전역으로 처리
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1️⃣ @Valid 유효성 검사 실패 시 처리
+    // 1. @Valid 유효성 검사 실패 시 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
@@ -26,29 +26,43 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         });
 
-        // 400 Bad Request 응답 반환
+        // Bad Request 응답 반환
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    // 2️⃣ 재고가 0 이하로 입력되는 경우 처리
+    // 2. 재고가 0 이하로 입력되는 경우 처리
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now()); // 오류 발생 시각
-        body.put("status", 400); // HTTP 상태 코드
-        body.put("error", "Bad Request"); // 오류 타입
-        body.put("message", e.getMessage()); // 예외 메시지
+        // 오류 발생 시각
+        body.put("timestamp", LocalDateTime.now());
+
+        // HTTP 상태 코드
+        body.put("status", 400);
+
+        // 오류 타입
+        body.put("error", "Bad Request");
+
+        // 예외 메시지
+        body.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // 3️⃣ 존재하지 않는 상품 조회 등 RuntimeException 처리
+    // 3. 존재하지 않는 상품 조회 등 RuntimeException 처리
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException e) {
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now()); // 오류 발생 시각
-        body.put("status", 404); // HTTP 상태 코드
-        body.put("error", "Not Found"); // 오류 타입
-        body.put("message", e.getMessage()); // 예외 메시지
+        // 오류 발생 시각
+        body.put("timestamp", LocalDateTime.now());
+
+        // HTTP 상태 코드
+        body.put("status", 404);
+
+        // 오류 타입
+        body.put("error", "Not Found");
+
+        // 예외 메시지
+        body.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
