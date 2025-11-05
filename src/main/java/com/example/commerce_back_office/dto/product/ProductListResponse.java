@@ -7,10 +7,10 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder // 빌더 패턴 사용 가능 (객체 생성 시 편리)
+@Builder
 public class ProductListResponse {
 
-    // 상품 ID (DB PK)
+    // 상품 ID
     private Long id;
 
     // 상품명

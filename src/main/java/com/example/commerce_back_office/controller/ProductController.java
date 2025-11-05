@@ -45,7 +45,7 @@ public class ProductController {
      * - 존재하지 않는 ID 요청 시 예외 발생
      */
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<ProductDetailResponse>> getProduct(@PathVariable Integer id) {
+    public ResponseEntity<CommonResponse<ProductDetailResponse>> getProduct(@PathVariable Long id) {
 
         ProductDetailResponse product = productService.getProduct(id);
         return ResponseEntity.status(OK).body(CommonResponse.of(GET_PRODUCT, product));
@@ -76,7 +76,7 @@ public class ProductController {
     @PatchMapping("/{id}")
 
     public ResponseEntity<CommonResponse<ProductDetailResponse>> updateProduct(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest request
     ) {
         ProductDetailResponse updatedProduct = productService.updateProduct(id, request);
