@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor // 기본 생성자 자동 생성
+@NoArgsConstructor
 public class ProductUpdateRequest {
 
     // 수정할 상품명 (Optional: null이면 수정 안함)
