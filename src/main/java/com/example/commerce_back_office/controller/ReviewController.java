@@ -20,7 +20,7 @@ import java.util.List;
  * GET: 특정 리뷰 상세 정보 조회
  */
 @RestController
-@RequestMapping("/products/{productId}/reviews")
+@RequestMapping("/products/{productId}/reviews" )
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -36,28 +36,34 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ReviewResponseDto> getOneReview(@PathVariable Long id) {
-        ReviewResponseDto response = reviewService.getOne(id);
+    @GetMapping("/{id}" )
+    public ResponseEntity<ReviewResponseDto> getOneReview(
+            @AuthenticationPrincipal CustomUserDetails userPrincipal,
+            @PathVariable Long id) {
+        ReviewResponseDto response = reviewService.getOne(id,userPrincipal.getUser());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponseDto>> getReviews() {
-        List<ReviewResponseDto> response = reviewService.getAll();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<ReviewResponseDto> patchReview(@PathVariable Long id,@Valid @RequestBody ReviewRequestDto request) {
-        ReviewResponseDto response = reviewService.patch(id,request);
+    public ResponseEntity<List<ReviewResponseDto>> getReviews(@AuthenticationPrincipal CustomUserDetails userPrincipal) {
+        List<ReviewResponseDto> response = reviewService.getAll(userPrincipal.getUser());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        reviewService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PatchMapping("/{id}" )
+    public ResponseEntity<ReviewResponseDto> patchReview(
+            @AuthenticationPrincipal CustomUserDetails userPrincipal,
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewRequestDto request) {
+        ReviewResponseDto response = reviewService.patch(id, userPrincipal.getUser(), request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @DeleteMapping("/{id}" )
+    public ResponseEntity<Void> deleteReview(
+            @AuthenticationPrincipal CustomUserDetails userPrincipal,
+            @PathVariable Long id) {
+        reviewService.delete(id, userPrincipal.getUser());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

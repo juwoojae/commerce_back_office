@@ -41,17 +41,17 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
-    public ReviewResponseDto getOne(Long id) {
-        Review review = reviewRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("review not found: " + id)
+    public ReviewResponseDto getOne(Long reviewId,User user) {
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
+                ()-> new IllegalArgumentException("리뷰를 찾을 수 없습니다.")
         );
 
         return ReviewResponseDto.from(review);
 
     }
 
-    public List<ReviewResponseDto> getAll() {
-        List<Review> reviews = reviewRepository.findAll();
+    public List<ReviewResponseDto> getAll(User user) {
+        List<Review> reviews = reviewRepository.findAllByUser(user);
 
         return reviews.stream()
                 .map(ReviewResponseDto::from)
@@ -59,9 +59,9 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponseDto patch(Long id, ReviewRequestDto request) {
-        Review review = reviewRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("review not found: " + id)
+    public ReviewResponseDto patch(Long reviewId,User user, ReviewRequestDto request) {
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
+                ()-> new IllegalArgumentException("리뷰를 찾을 수 없습니다.")
         );
 
         review.patch(request);
@@ -69,22 +69,13 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
-    public void delete(Long id) {
+    public void delete(Long reviewId,User user) {
         //id 검사
-        Review review = reviewRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("존재하지 않는 id입니다.")
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
+                () -> new IllegalStateException("리뷰를 찾을 수 없습니다.")
         );
 
         //리뷰 삭제
-        reviewRepository.deleteById(id);
-    }
-
-    public List<ReviewResponseDto> searchKeword(String keyword) {
-        //리뷰 검색
-        List<Review> reviews = reviewRepository.searchKeyword(keyword);
-
-        return reviews.stream()
-                .map(ReviewResponseDto::from)
-                .collect(Collectors.toList());
+        reviewRepository.deleteById(reviewId);
     }
 }
