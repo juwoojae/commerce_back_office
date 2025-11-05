@@ -44,17 +44,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponseDto>> getReviews(@RequestParam(required = false) String keyword) {
-        List<ReviewResponseDto> response;
-
-        // 검색할 키워드가 없다면
-        if (!StringUtils.hasText(keyword)) {
-            response = reviewService.getAll();
+    public ResponseEntity<List<ReviewResponseDto>> getReviews() {
+        List<ReviewResponseDto> response = reviewService.getAll();
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-
-        response = reviewService.searchKeword(keyword);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PatchMapping("/{id}")
