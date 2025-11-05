@@ -6,6 +6,7 @@ import com.example.commerce_back_office.filter.JwtFilter;
 import com.example.commerce_back_office.filter.LoginFilter;
 import com.example.commerce_back_office.filter.LogoutFilter;
 import com.example.commerce_back_office.repository.RefreshRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
+
+import static com.example.commerce_back_office.jwt.JwtConst.ACCESS_HEADER;
 
 /**
  * 스프링 시큐리티 필터 통합 등록 클래스
@@ -41,6 +48,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        //CORS 설정
+        http
+                .cors((cors) -> cors
+                        .configurationSource(new CorsConfigurationSource() {
+
+                            @Override
+                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request){
+                                CorsConfiguration configuration = new CorsConfiguration();
+
+                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                                configuration.setAllowedMethods(Collections.singletonList("*"));
+                                configuration.setAllowCredentials(true);
+                                configuration.setAllowedHeaders(Collections.singletonList("*"));
+                                configuration.setMaxAge(3600L);
+                                configuration.setExposedHeaders(Collections.singletonList(ACCESS_HEADER));
+
+                                return configuration;
+                            }
+                        }));
 
         //csrf disable JWT 에서는 굳이 방어할 필요가 없다
         http
