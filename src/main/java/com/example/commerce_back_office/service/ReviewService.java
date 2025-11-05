@@ -78,4 +78,13 @@ public class ReviewService {
         //리뷰 삭제
         reviewRepository.deleteById(id);
     }
+
+    public List<ReviewResponseDto> searchKeword(String keyword) {
+        //리뷰 검색
+        List<Review> reviews = reviewRepository.searchKeyword(keyword);
+
+        return reviews.stream()
+                .map(ReviewResponseDto::from)
+                .collect(Collectors.toList());
+    }
 }
