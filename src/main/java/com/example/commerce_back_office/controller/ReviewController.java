@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,17 +47,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<CommonResponse<List<ReviewResponseDto>>> getReviews(@RequestParam(required = false) String keyword) {
-        List<ReviewResponseDto> response;
-
-        // 검색할 키워드가 없다면
-        if (!StringUtils.hasText(keyword)) {
-            response = reviewService.getAll();
-            return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
-        }
-
-        response = reviewService.searchKeword(keyword);
-        return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
+    public ResponseEntity<CommonResponse<List<ReviewResponseDto>>> getReviews() {
+        List<ReviewResponseDto> response = reviewService.getAll();
+             return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
     }
 
     @PatchMapping("/{id}")
