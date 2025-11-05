@@ -1,10 +1,10 @@
 package com.example.commerce_back_office.domain.entity;
 
-import com.example.commerce_back_office.dto.UserResponseDto;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Entity
@@ -33,5 +33,16 @@ public class Review extends BaseEntity{
         this.product = product;
         this.rating = rating;
         this.content = content;
+    }
+
+    public void patch(ReviewRequestDto request) {
+
+        if(request.getRating() != null) {
+            this.rating = request.getRating();
+        }
+
+        if(!StringUtils.isEmpty(request.getContent())){
+            this.content = request.getContent();
+        }
     }
 }
