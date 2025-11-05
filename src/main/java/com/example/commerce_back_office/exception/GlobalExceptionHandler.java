@@ -64,6 +64,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(CONFLICT).body(CommonResponse.of(ex.getErrorCode()));
     }
+
+    /**
+     * 클라이언트의 요청을 실행할 권한이 부족한 경우
+     */
+    @ExceptionHandler (UnauthorizedActionException.class)
+    public ResponseEntity<CommonResponse<Object>> handleAuthorizationErrors(
+            UnauthorizedActionException ex) {
+
+        return ResponseEntity.status(UNAUTHORIZED).body(CommonResponse.of(ex.getErrorCode()));
+    }
 }
 
 

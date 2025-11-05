@@ -2,12 +2,15 @@ package com.example.commerce_back_office.service;
 
 import com.example.commerce_back_office.domain.entity.Review;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
+import com.example.commerce_back_office.exception.NotFoundException;
 import com.example.commerce_back_office.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.commerce_back_office.exception.code.ErrorCode.REVIEW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +20,7 @@ public class AdminReviewService {
 
     public ReviewResponseDto getOne(Long id) {
         Review review = reviewRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("review not found: " + id)
+                ()-> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         return ReviewResponseDto.from(review);
@@ -35,7 +38,7 @@ public class AdminReviewService {
     public void delete(Long id) {
         //id 검사
         reviewRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("존재하지 않는 id입니다.")
+                () -> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         //리뷰 삭제

@@ -20,6 +20,7 @@ public enum ErrorCode implements BaseCode {
     //도메인 예외
     EMAIL_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     INVALIDATE_QUANTITY(HttpStatus.BAD_REQUEST, "재고 수량은 0 이하로 설정할 수 없습니다."),
+    AUTHORIZATION(HttpStatus.UNAUTHORIZED, "권한이 부족합니다"),
 
     //@Validation 유효성 검사 실패시 처리
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "입력값이 유효하지 않습니다.");

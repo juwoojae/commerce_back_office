@@ -7,6 +7,9 @@ import com.example.commerce_back_office.domain.entity.User;
 import com.example.commerce_back_office.dto.order.OrderCreateRequest;
 import com.example.commerce_back_office.dto.order.OrderResponse;
 import com.example.commerce_back_office.dto.order.OrderUpdateRequest;
+import com.example.commerce_back_office.exception.NotFoundException;
+import com.example.commerce_back_office.exception.UnauthorizedActionException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.repository.OrderRepository;
 import com.example.commerce_back_office.repository.ProductRepository;
 import com.example.commerce_back_office.repository.UserRepository;
@@ -16,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.commerce_back_office.exception.code.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,11 +65,11 @@ public class OrderService {
     //특정 주문 조회
     public OrderResponse getOrder(Long orderId, Long userId, boolean admin) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() ->new NotFoundException(ORDER_NOT_FOUND));
 
         //다른 유저의 주문이면 예외
         if (!admin && !order.getUser().getId().equals(userId))
-            throw new RuntimeException("권한이 없습니다.");
+            throw new UnauthorizedActionException(AUTHORIZATION);
 
         return new OrderResponse(order); // 상태 메시지 포함
     }
@@ -72,17 +77,17 @@ public class OrderService {
     //특정 주문 수정
     public OrderResponse updateOrder(Long orderId, Long userId, boolean admin, OrderUpdateRequest request) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND));
 
         // 본인주문만 수정가능
         if (!admin && !order.getUser().getId().equals(userId)) {
-            throw new RuntimeException("권한이 없습니다.");
+            throw new UnauthorizedActionException(AUTHORIZATION);
         }
 
         // 상품 변경 시
         if (request.getProductId() != null) {
             Product product = productRepository.findById(request.getProductId())
-                    .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new NotFoundException(PRODUCT_NOT_FOUND));
             order.setProduct(product);
 
             // 총 가격 다시 계산
@@ -101,19 +106,19 @@ public class OrderService {
     // 주문 상태 업데이트
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, Long userId, boolean admin) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ORDER_NOT_FOUND));
 
         if (status == OrderStatus.CANCELLED) {
 
             // 주문 취소는 유저 본인 또는 관리자만 가능
             if (!admin && !order.getUser().getId().equals(userId)) {
-                throw new RuntimeException("권한이 없습니다.");
+                throw new UnauthorizedActionException(AUTHORIZATION);
             }
         } else {
 
             // 그 외 상태 변경은 관리자만 가능
             if (!admin) {
-                throw new RuntimeException("관리자 권한이 필요합니다.");
+                throw new UnauthorizedActionException(AUTHORIZATION);
             }
         }
         order.updateStatus(status);

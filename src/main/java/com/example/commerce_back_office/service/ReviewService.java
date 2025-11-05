@@ -5,6 +5,8 @@ import com.example.commerce_back_office.domain.entity.Review;
 import com.example.commerce_back_office.domain.entity.User;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
+import com.example.commerce_back_office.exception.NotFoundException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.repository.ProductRepository;
 import com.example.commerce_back_office.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.commerce_back_office.exception.code.ErrorCode.REVIEW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +30,7 @@ public class ReviewService {
 
         //상품 검사
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new IllegalArgumentException("product not found: " + productId)
+                () -> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         Review review = new Review(
@@ -43,7 +47,7 @@ public class ReviewService {
 
     public ReviewResponseDto getOne(Long id) {
         Review review = reviewRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("review not found: " + id)
+                ()-> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         return ReviewResponseDto.from(review);
@@ -61,7 +65,7 @@ public class ReviewService {
     @Transactional
     public ReviewResponseDto patch(Long id, ReviewRequestDto request) {
         Review review = reviewRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("review not found: " + id)
+                ()-> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         review.patch(request);
@@ -72,7 +76,7 @@ public class ReviewService {
     public void delete(Long id) {
         //id 검사
         Review review = reviewRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("존재하지 않는 id입니다.")
+                () -> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         //리뷰 삭제
