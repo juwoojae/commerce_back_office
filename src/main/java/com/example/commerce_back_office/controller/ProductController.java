@@ -25,7 +25,7 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * 1️⃣ 상품 리스트 조회 + 검색
+     * 1 상품 리스트 조회 + 검색
      * - GET /products?keyword=검색어
      * - keyword가 없으면 전체 상품 조회
      * - keyword가 있으면 상품명 또는 카테고리 기준으로 검색
@@ -39,19 +39,20 @@ public class ProductController {
     }
 
     /**
-     * 2️⃣ 상품 상세 조회
+     * 2 상품 상세 조회
      * - GET /products/{id}
      * - 특정 상품의 상세 정보를 반환
      * - 존재하지 않는 ID 요청 시 예외 발생
      */
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ProductDetailResponse>> getProduct(@PathVariable Integer id) {
+
         ProductDetailResponse product = productService.getProduct(id);
         return ResponseEntity.status(OK).body(CommonResponse.of(GET_PRODUCT, product));
     }
 
     /**
-     * 3️⃣ 상품 등록
+     * 3 상품 등록
      * - POST /products
      * - RequestBody에 상품 정보(JSON) 전달
      * - 유효성 검사를 수행(@Valid)
@@ -66,13 +67,14 @@ public class ProductController {
     }
 
     /**
-     * 4️⃣ 상품 수정
+     * 4 상품 수정
      * - PATCH /products/{id}
      * - RequestBody에 수정할 필드만 JSON으로 전달
      * - 재고 0 이하 입력 불가, 5 이하일 경우 경고 메시지 포함
      * - 수정 후 업데이트된 상품 정보를 반환
      */
     @PatchMapping("/{id}")
+
     public ResponseEntity<CommonResponse<ProductDetailResponse>> updateProduct(
             @PathVariable Integer id,
             @Valid @RequestBody ProductUpdateRequest request
