@@ -80,6 +80,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/user/register", "/user/auth").permitAll() //모든 권한에 대해서 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
+                        .requestMatchers("/orders/").authenticated()
                         .anyRequest().authenticated()); //그 이외 로그인한 사용자에 대해 허용
 
         //로그인 필터 추가
