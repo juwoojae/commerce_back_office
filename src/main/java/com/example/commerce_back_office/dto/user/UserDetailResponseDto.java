@@ -1,4 +1,4 @@
-package com.example.commerce_back_office.dto;
+package com.example.commerce_back_office.dto.user;
 
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.User;

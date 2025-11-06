@@ -7,28 +7,34 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name ="products") // DB 테이블명 지정
-@NoArgsConstructor // 파라미터 없는 기본 생성자 자동 생성
-public class Product extends BaseEntity { // BaseEntity 상속: createdDate, lastModifiedDate 포함
+@Table(name ="products")
+@NoArgsConstructor
+public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // PK 자동 생성
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String name; // 상품명
+    //상품명
+    private String name;
 
-    private Integer price; // 상품 가격
+    //상품 가격
+    private Integer price;
 
-    private Integer stock; // 재고 수량
+    //재고 수량
+    private Integer stock;
 
-    @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 DB 저장
-    private Category category; // 상품 카테고리 (TOP, BOTTOM, OUTER)
+    // Enum 타입을 문자열로 DB 저장
+    @Enumerated(EnumType.STRING)
 
-    private String description; // 상품 상세 설명
+    // 상품 카테고리 (TOP, BOTTOM, OUTER)
+    private Category category;
 
-    /**
-     * 상품 생성 시 사용하는 생성자
-     */
+    // 상품 상세 설명
+    private String description;
+
+
+    //상품 생성시 생성자
     public Product(String name, Integer price, Integer stock, Category category, String description) {
         this.name = name;
         this.price = price;
@@ -37,24 +43,28 @@ public class Product extends BaseEntity { // BaseEntity 상속: createdDate, las
         this.description = description;
     }
 
-    // Setter 메서드: 수정 기능에서 사용
-
+    // 상품명 수정
     public void setName(String name) {
         this.name = name;
     }
 
+    //상푸ㅁ가격 수정
     public void setPrice(Integer price) {
         this.price = price;
     }
 
+    //상품 재고 수정
     public void setStock(Integer stock) {
         this.stock = stock;
     }
 
+    //상품 카테고리수정
     public void setCategory(Category category) {
         this.category = category;
     }
 
+
+    //상품 상세 설명 수정
     public void setDescription(String description) {
         this.description = description;
     }

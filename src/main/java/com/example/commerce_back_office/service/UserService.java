@@ -1,15 +1,19 @@
 package com.example.commerce_back_office.service;
 
-import com.example.commerce_back_office.dto.UserDetailResponseDto;
-import com.example.commerce_back_office.dto.UserRequestDto;
-import com.example.commerce_back_office.dto.UserResponseDto;
+import com.example.commerce_back_office.dto.user.UserDetailResponseDto;
+import com.example.commerce_back_office.dto.user.UserRequestDto;
+import com.example.commerce_back_office.dto.user.UserResponseDto;
 import com.example.commerce_back_office.domain.entity.User;
+import com.example.commerce_back_office.exception.NotFoundException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.commerce_back_office.exception.code.ErrorCode.USER_NOT_FOUND;
 
 /**
  * 유저 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -42,7 +46,7 @@ public class UserService {
      */
     public UserDetailResponseDto getOne(Long id) {
         User user = userRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("User not found: " + id)
+                ()-> new NotFoundException(USER_NOT_FOUND)
         );
 
         return UserDetailResponseDto.from(user);
@@ -58,21 +62,12 @@ public class UserService {
      * @return 수정된 유저 정보를 담은 UserDetailResponseDto
      */
     public UserDetailResponseDto patch(Long id,UserRequestDto request) {
-
         // 유저 id 존재 여부 확인
         User user = userRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("User not found: " + id)
+                ()-> new NotFoundException(USER_NOT_FOUND)
         );
-
-        // 이름 수정을 요청했을 때만
-        if (request.getName() != null && !request.getName().equals(user.getName()) ) {
-            user.setName(request.getName());
-        }
-
-        // 권한 수정을 요청했을 때만
-        if (request.getRole() != null && !request.getRole().equals(user.getRole())) {
-            user.setRole(request.getRole());
-        }
+        // 유저 데이터 수정
+        user.patchUser(request);
 
         // 데이터 저장
         User patchUser = userRepository.save(user);

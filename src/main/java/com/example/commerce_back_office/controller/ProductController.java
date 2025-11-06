@@ -1,82 +1,60 @@
 package com.example.commerce_back_office.controller;
 
-import com.example.commerce_back_office.dto.product.ProductCreateRequest;
-import com.example.commerce_back_office.dto.product.ProductUpdateRequest;
-import com.example.commerce_back_office.dto.product.ProductDetailResponse;
-import com.example.commerce_back_office.dto.product.ProductListResponse;
+import com.example.commerce_back_office.domain.UserRole;
+import com.example.commerce_back_office.dto.product.*;
+import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.service.ProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/products") // 기본 URL 경로 설정 (/products)
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
-    /**
-     * 1️⃣ 상품 리스트 조회 + 검색
-     * - GET /products?keyword=검색어
-     * - keyword가 없으면 전체 상품 조회
-     * - keyword가 있으면 상품명 또는 카테고리 기준으로 검색
-     */
+    // 상품 리스트 조회 + 검색 (유저/관리자 모두 가능)
     @GetMapping
-    public ResponseEntity<List<ProductListResponse>> getProducts(
-            @RequestParam(required = false) String keyword // 검색어 optional
-    ) {
-        List<ProductListResponse> products = productService.getProducts(keyword);
-        return ResponseEntity.ok(products);
+    public ResponseEntity<List<ProductListResponse>> getProducts(@RequestParam(required = false) String keyword) {
+        return ResponseEntity.ok(productService.getProducts(keyword));
     }
 
-    /**
-     * 2️⃣ 상품 상세 조회
-     * - GET /products/{id}
-     * - 특정 상품의 상세 정보를 반환
-     * - 존재하지 않는 ID 요청 시 예외 발생
-     */
+    // 상품 상세 조회 (유저/관리자 모두 가능)
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> getProduct(@PathVariable Integer id) {
-        ProductDetailResponse product = productService.getProduct(id);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<ProductDetailResponse> getProduct(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProduct(id));
     }
 
-    /**
-     * 3️⃣ 상품 등록
-     * - POST /products
-     * - RequestBody에 상품 정보(JSON) 전달
-     * - 유효성 검사를 수행(@Valid)
-     * - 등록 후 생성된 상품 정보를 반환
-     */
+    // 상품 등록 (관리자만)
     @PostMapping
     public ResponseEntity<ProductDetailResponse> createProduct(
-            @Valid @RequestBody ProductCreateRequest request
-    ) {
-        ProductDetailResponse createdProduct = productService.createProduct(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+            @RequestBody ProductCreateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserRole role = userDetails.getUser().getRole();
+        return ResponseEntity.ok(productService.createProduct(request, role));
     }
 
-    /**
-     * 4️⃣ 상품 수정
-     * - PATCH /products/{id}
-     * - RequestBody에 수정할 필드만 JSON으로 전달
-     * - 재고 0 이하 입력 불가, 5 이하일 경우 경고 메시지 포함
-     * - 수정 후 업데이트된 상품 정보를 반환
-     */
+    // 상품 수정 (관리자만)
     @PatchMapping("/{id}")
     public ResponseEntity<ProductDetailResponse> updateProduct(
-            @PathVariable Integer id,
-            @Valid @RequestBody ProductUpdateRequest request
-    ) {
-        ProductDetailResponse updatedProduct = productService.updateProduct(id, request);
-        return ResponseEntity.ok(updatedProduct);
+            @PathVariable Long id,
+            @RequestBody ProductUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserRole role = userDetails.getUser().getRole();
+        return ResponseEntity.ok(productService.updateProduct(id, request, role));
     }
 }
+
+
+
+
 
 
 

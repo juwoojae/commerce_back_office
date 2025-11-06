@@ -1,20 +1,19 @@
 package com.example.commerce_back_office.jwt;
 
 import com.example.commerce_back_office.domain.UserRole;
+import com.example.commerce_back_office.exception.auth.ExpiredException;
+import com.example.commerce_back_office.exception.auth.InvalidTokenException;
+import com.example.commerce_back_office.exception.auth.TokenMissingException;
 import io.jsonwebtoken.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static com.example.commerce_back_office.exception.code.ErrorCode.*;
 import static com.example.commerce_back_office.jwt.JwtConst.*;
 
 /**
@@ -41,8 +40,23 @@ public class JwtUtil {
     /**
      * Jwt Signature 의 위조 + 만료 검증
      */
-    public Claims getClaims(String token) {//정보를 찾아오려면 시큐리티 키값이 필요함
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+    public Claims validationAndgetClaims(String token) {//정보를 찾아오려면 시큐리티 키값이 필요함
+
+        if(token == null){
+            log.info("토큰이 유실되었음");
+            throw new TokenMissingException(TOKEN_MISSING);
+        }
+        Claims claims = null;
+        try {
+            claims =  Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            log.error("토큰이 이미 만료됨");
+            throw new ExpiredException(TOKEN_EXPIRED);  //토큰 만료 401
+        } catch (JwtException e) {
+            log.error("사용할수 없는 토큰");
+            throw new InvalidTokenException(TOKEN_INVALID);  //토큰이 위조/손상 401
+        }
+        return claims;
     }
     /**
      * Jwt 토큰을 만들어서 반환하는 함수

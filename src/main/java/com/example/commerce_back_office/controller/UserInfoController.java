@@ -1,16 +1,23 @@
 package com.example.commerce_back_office.controller;
 
-import com.example.commerce_back_office.dto.UserDetailResponseDto;
-import com.example.commerce_back_office.dto.UserRequestDto;
-import com.example.commerce_back_office.dto.UserResponseDto;
+
+import com.example.commerce_back_office.dto.user.UserDetailResponseDto;
+import com.example.commerce_back_office.dto.user.UserRequestDto;
+import com.example.commerce_back_office.dto.user.UserResponseDto;
+
+import com.example.commerce_back_office.dto.CommonResponse;
+
 import com.example.commerce_back_office.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.commerce_back_office.exception.code.SuccessCode.*;
+import static org.springframework.http.HttpStatus.*;
 
 /**
  * 유저 정보를 조회하는 REST 컨트롤러입니다.
@@ -19,7 +26,6 @@ import java.util.List;
  * PATCH: 특정 유저의 정보 부분 수정
  */
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserInfoController {
 
@@ -30,10 +36,10 @@ public class UserInfoController {
      *
      * @return List<UserResponseDto>: 전체 유저 정보를 담은 리스트와 HTTP 상태 코드 200
      */
-    @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+    @GetMapping("/users")
+    public ResponseEntity<CommonResponse<List<UserResponseDto>>> getAllUsers() {
         List<UserResponseDto> users = userService.getAll();
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_USERS, users));
     }
 
     /**
@@ -43,12 +49,12 @@ public class UserInfoController {
      * @return UserDetailResponseDto 해당 유저의 상세 정보와 HTTP 상태 코드 200
      */
     @Secured("ROLE_ADMIN")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDetailResponseDto> getUsers(@PathVariable Long id) {
+    @GetMapping("admin/users/{id}")
+    public ResponseEntity<CommonResponse<UserDetailResponseDto>> getUsers(@PathVariable Long id) {
 
         UserDetailResponseDto users = userService.getOne(id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_USER, users));
     }
 
     /**
@@ -57,10 +63,10 @@ public class UserInfoController {
      * @param keyword 유저(이름, 이메일 포함 문자)를 검색할 키워드
      * @return List<UserResponseDto> 검색 조건에 일치하는 유저 목록
      */
-    @GetMapping("/search")
-    public ResponseEntity<List<UserResponseDto>> getAllUsersByKeyword(@RequestParam String keyword) {
+    @GetMapping("/users/search")
+    public ResponseEntity<CommonResponse<List<UserResponseDto>>> getAllUsersByKeyword(@RequestParam String keyword) {
         List<UserResponseDto> response = userService.getAllByKeyword(keyword);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_USER_BY_KEYWORD, response));
     }
 
     /**
@@ -72,11 +78,11 @@ public class UserInfoController {
      * @return 수정된 유저 정보 (UserDetailResponseDto)
      */
     @Secured("ROLE_ADMIN")
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserDetailResponseDto> patchUsers(@PathVariable Long id, @RequestBody UserRequestDto request) {
+    @PatchMapping("admin/users/{id}")
+    public ResponseEntity<CommonResponse<UserDetailResponseDto>> patchUsers(@PathVariable Long id,@Valid @RequestBody UserRequestDto request) {
 
         UserDetailResponseDto users = userService.patch(id, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.status(OK).body(CommonResponse.of(UPDATE_USER, users));
     }
 }

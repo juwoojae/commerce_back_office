@@ -16,7 +16,7 @@ import static com.example.commerce_back_office.jwt.JwtConst.*;
  */
 @Slf4j
 @Component
-public class JwtWriter {
+public class JwtWebManager {
     /**
      * JWT 를 HTTP 헤더에 추가하기
      */

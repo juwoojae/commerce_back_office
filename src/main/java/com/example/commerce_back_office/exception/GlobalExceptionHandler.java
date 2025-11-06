@@ -1,5 +1,7 @@
 package com.example.commerce_back_office.exception;
 
+import com.example.commerce_back_office.dto.CommonResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,12 +12,18 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice // 모든 컨트롤러에서 발생하는 예외를 전역으로 처리
+import static com.example.commerce_back_office.exception.code.ErrorCode.VALIDATION_ERROR;
+import static org.springframework.http.HttpStatus.*;
+
+@Slf4j(topic = "GlobalExceptionHandler")
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1️⃣ @Valid 유효성 검사 실패 시 처리
+    /**
+     * 1. @Valid 유효성 검사 실패 시 처리
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+    public ResponseEntity<CommonResponse<Map<String, String>>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -25,31 +33,48 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         });
 
-        // 400 Bad Request 응답 반환
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.of(VALIDATION_ERROR, errors));
     }
 
-    // 2️⃣ 재고가 0 이하로 입력되는 경우 처리
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now()); // 오류 발생 시각
-        body.put("status", 400); // HTTP 상태 코드
-        body.put("error", "Bad Request"); // 오류 타입
-        body.put("message", e.getMessage()); // 예외 메시지
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    /**
+     * 2. 재고가 0 이하로 입력되는 경우 예외 처리
+     */
+    @ExceptionHandler(InvalidProductQuantityException.class)
+    public ResponseEntity<CommonResponse<Object>> InvalidProductQuantityException(
+            InvalidProductQuantityException ex) {
+
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.of(ex.getErrorCode()));
     }
 
-    // 3️⃣ 존재하지 않는 상품 조회 등 RuntimeException 처리
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException e) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now()); // 오류 발생 시각
-        body.put("status", 404); // HTTP 상태 코드
-        body.put("error", "Not Found"); // 오류 타입
-        body.put("message", e.getMessage()); // 예외 메시지
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    /**
+     * 3. 존재하지 않는 상품 조회 예외 처리
+     */
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<CommonResponse<Object>> handleRuntime(NotFoundException ex) {
+
+        return ResponseEntity.status(NOT_FOUND).body(CommonResponse.of(ex.getErrorCode()));
     }
+
+    /**
+     * 도메인 정책 위반 - 회원 등록에서 하나의 이메일을 중복등록 하는경우
+     */
+    @ExceptionHandler (EmailAlreadyExistException.class)
+    public ResponseEntity<CommonResponse<Object>> handleUserDomainErrors(
+            EmailAlreadyExistException ex) {
+
+        return ResponseEntity.status(CONFLICT).body(CommonResponse.of(ex.getErrorCode()));
+    }
+
+    /**
+     * 클라이언트의 요청을 실행할 권한이 부족한 경우
+     */
+    @ExceptionHandler (UnauthorizedActionException.class)
+    public ResponseEntity<CommonResponse<Object>> handleAuthorizationErrors(
+            UnauthorizedActionException ex) {
+
+        return ResponseEntity.status(UNAUTHORIZED).body(CommonResponse.of(ex.getErrorCode()));
+    }
+
 }
 
 

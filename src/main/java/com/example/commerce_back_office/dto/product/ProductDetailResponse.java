@@ -7,11 +7,11 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder // 빌더 패턴 사용 가능 (객체 생성 시 편리)
+@Builder
 public class ProductDetailResponse {
 
-    // 상품 ID (DB PK)
-    private Integer id;
+    // 상품 id
+    private Long id;
 
     // 상품명
     private String name;
@@ -25,7 +25,7 @@ public class ProductDetailResponse {
     // 재고 수량
     private Integer stock;
 
-    // 상품 카테고리 (Enum: TOP, BOTTOM, OUTER 등)
+    // 상품 카테고리
     private Category category;
 
     // 상품 등록일 (BaseEntity에서 자동 생성)
@@ -37,7 +37,7 @@ public class ProductDetailResponse {
     // 재고가 5개 이하일 경우 true, 아니면 false
     private boolean lowStock;
 
-    // 재고가 부족할 경우 경고 메시지 (예: "⚠️ 재고가 5개 이하입니다.")
+    // 재고가 부족할 경우 경고 메시지
     private String warningMessage;
 }
 
