@@ -10,7 +10,6 @@ import com.example.commerce_back_office.dto.CommonResponse;
 import com.example.commerce_back_office.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,6 @@ import static org.springframework.http.HttpStatus.*;
  * PATCH: 특정 유저의 정보 부분 수정
  */
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserInfoController {
 
@@ -38,7 +36,7 @@ public class UserInfoController {
      *
      * @return List<UserResponseDto>: 전체 유저 정보를 담은 리스트와 HTTP 상태 코드 200
      */
-    @GetMapping
+    @GetMapping("/users")
     public ResponseEntity<CommonResponse<List<UserResponseDto>>> getAllUsers() {
         List<UserResponseDto> users = userService.getAll();
         return ResponseEntity.status(OK).body(CommonResponse.of(GET_USERS, users));
@@ -51,7 +49,7 @@ public class UserInfoController {
      * @return UserDetailResponseDto 해당 유저의 상세 정보와 HTTP 상태 코드 200
      */
     @Secured("ROLE_ADMIN")
-    @GetMapping("/{id}")
+    @GetMapping("admin/users/{id}")
     public ResponseEntity<CommonResponse<UserDetailResponseDto>> getUsers(@PathVariable Long id) {
 
         UserDetailResponseDto users = userService.getOne(id);
@@ -65,7 +63,7 @@ public class UserInfoController {
      * @param keyword 유저(이름, 이메일 포함 문자)를 검색할 키워드
      * @return List<UserResponseDto> 검색 조건에 일치하는 유저 목록
      */
-    @GetMapping("/search")
+    @GetMapping("/users/search")
     public ResponseEntity<CommonResponse<List<UserResponseDto>>> getAllUsersByKeyword(@RequestParam String keyword) {
         List<UserResponseDto> response = userService.getAllByKeyword(keyword);
         return ResponseEntity.status(OK).body(CommonResponse.of(GET_USER_BY_KEYWORD, response));
@@ -80,7 +78,7 @@ public class UserInfoController {
      * @return 수정된 유저 정보 (UserDetailResponseDto)
      */
     @Secured("ROLE_ADMIN")
-    @PatchMapping("/{id}")
+    @PatchMapping("admin/users/{id}")
     public ResponseEntity<CommonResponse<UserDetailResponseDto>> patchUsers(@PathVariable Long id,@Valid @RequestBody UserRequestDto request) {
 
         UserDetailResponseDto users = userService.patch(id, request);
