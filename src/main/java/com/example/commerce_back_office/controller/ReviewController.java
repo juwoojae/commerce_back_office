@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.controller;
 
+import com.example.commerce_back_office.dto.CommonResponse;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
@@ -9,10 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.commerce_back_office.exception.code.SuccessCode.*;
+import static org.springframework.http.HttpStatus.*;
 
 /**
  * 리뷰 정보를 조회하는 REST 컨트롤러입니다.
@@ -28,45 +31,41 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<ReviewResponseDto> createReview(
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> createReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable long productId,
             @Valid @RequestBody ReviewRequestDto request) {
 
         ReviewResponseDto response = reviewService.save(userPrincipal.getUser(), productId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(CREATE_REVIEW, response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewResponseDto> getOneReview(@PathVariable Long id) {
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> getOneReview(@PathVariable Long id) {
         ReviewResponseDto response = reviewService.getOne(id);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEW, response));
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponseDto>> getReviews(@RequestParam(required = false) String keyword) {
-        List<ReviewResponseDto> response;
-
-        // 검색할 키워드가 없다면
-        if (!StringUtils.hasText(keyword)) {
-            response = reviewService.getAll();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-
-        response = reviewService.searchKeword(keyword);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public ResponseEntity<CommonResponse<List<ReviewResponseDto>>> getReviews() {
+        List<ReviewResponseDto> response = reviewService.getAll();
+             return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ReviewResponseDto> patchReview(@PathVariable Long id,@Valid @RequestBody ReviewRequestDto request) {
-        ReviewResponseDto response = reviewService.patch(id,request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> patchReview(@PathVariable Long id, @Valid @RequestBody ReviewRequestDto request) {
+        ReviewResponseDto response = reviewService.patch(id, request);
+        return ResponseEntity.status(OK).body(CommonResponse.of(UPDATE_REVIEW, response));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+    public ResponseEntity<CommonResponse<Void>> deleteReview(@PathVariable Long id) {
         reviewService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 
 }
+
+
+
+

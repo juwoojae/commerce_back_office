@@ -1,21 +1,15 @@
 package com.example.commerce_back_office.jwt;
 
 import com.example.commerce_back_office.domain.UserRole;
-import com.example.commerce_back_office.exception.ExpiredException;
-import com.example.commerce_back_office.exception.InvalidTokenException;
-import com.example.commerce_back_office.exception.TokenMissingException;
-import com.example.commerce_back_office.exception.code.ErrorCode;
+import com.example.commerce_back_office.exception.auth.ExpiredException;
+import com.example.commerce_back_office.exception.auth.InvalidTokenException;
+import com.example.commerce_back_office.exception.auth.TokenMissingException;
 import io.jsonwebtoken.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 

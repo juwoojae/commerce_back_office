@@ -1,11 +1,10 @@
 package com.example.commerce_back_office.filter;
 
 import com.example.commerce_back_office.dto.CommonResponse;
-import com.example.commerce_back_office.dto.auth.AuthErrorResponseDto;
-import com.example.commerce_back_office.exception.ExpiredException;
-import com.example.commerce_back_office.exception.InvalidTokenException;
-import com.example.commerce_back_office.exception.JsonParsingFailedException;
-import com.example.commerce_back_office.exception.TokenMissingException;
+import com.example.commerce_back_office.exception.auth.ExpiredException;
+import com.example.commerce_back_office.exception.auth.InvalidTokenException;
+import com.example.commerce_back_office.exception.auth.JsonParsingFailedException;
+import com.example.commerce_back_office.exception.auth.TokenMissingException;
 import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -13,7 +12,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;

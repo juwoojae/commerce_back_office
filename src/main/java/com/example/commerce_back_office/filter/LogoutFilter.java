@@ -1,8 +1,7 @@
 package com.example.commerce_back_office.filter;
 
 
-import com.example.commerce_back_office.exception.InvalidTokenException;
-import com.example.commerce_back_office.exception.code.ErrorCode;
+import com.example.commerce_back_office.exception.auth.InvalidTokenException;
 import com.example.commerce_back_office.jwt.JwtUtil;
 import com.example.commerce_back_office.jwt.JwtWebManager;
 import io.jsonwebtoken.Claims;
