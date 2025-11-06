@@ -3,6 +3,8 @@ package com.example.commerce_back_office.service;
 import com.example.commerce_back_office.domain.Category;
 import com.example.commerce_back_office.domain.entity.Product;
 import com.example.commerce_back_office.dto.product.*;
+import com.example.commerce_back_office.exception.InvalidProductQuantityException;
+import com.example.commerce_back_office.exception.NotFoundException;
 import com.example.commerce_back_office.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -11,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.commerce_back_office.exception.code.ErrorCode.INVALIDATE_QUANTITY;
+import static com.example.commerce_back_office.exception.code.ErrorCode.PRODUCT_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +46,7 @@ public class ProductService {
 
             // 없는 상품, 카테고리일 경우 메세지 출력
             if(products.isEmpty()){
-                throw new RuntimeException("검색 결과가 없습니다");
+                throw new NotFoundException(PRODUCT_NOT_FOUND);
             }
         }
 
@@ -55,7 +60,7 @@ public class ProductService {
     // 2 특정 상품 상세 조회
     public ProductDetailResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(PRODUCT_NOT_FOUND));
         return toProductDetailResponse(product);
     }
 
@@ -63,7 +68,7 @@ public class ProductService {
     // 재고 수량 0 이하이면 IllegalArgumentException 발생
     public ProductDetailResponse createProduct(ProductCreateRequest request) {
         if (request.getStock() == null || request.getStock() <= 0) {
-            throw new IllegalArgumentException("재고 수량은 0 이하로 설정할 수 없습니다.");
+            throw new InvalidProductQuantityException(INVALIDATE_QUANTITY);
         }
 
         Product product = new Product(
@@ -82,10 +87,10 @@ public class ProductService {
     // 재고 0이하 입력 불가
     public ProductDetailResponse updateProduct(Long id, ProductUpdateRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(PRODUCT_NOT_FOUND));
 
         if (request.getStock() != null && request.getStock() <= 0) {
-            throw new IllegalArgumentException("재고 수량은 0 이하로 수정할 수 없습니다.");
+            throw new InvalidProductQuantityException(INVALIDATE_QUANTITY);
         }
 
         if (request.getName() != null) product.setName(request.getName());

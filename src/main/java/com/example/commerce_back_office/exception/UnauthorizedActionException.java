@@ -4,14 +4,14 @@ import com.example.commerce_back_office.exception.code.ErrorCode;
 import lombok.Getter;
 
 /**
- * 토큰이 시그니처 검증에 실패했을때 던지는 예외
+ * 권한이 부족해서 클라이언트 요청을 수행하지 못할때 던지는 예외
  */
 @Getter
-public class InvalidTokenException extends RuntimeException {
+public class UnauthorizedActionException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    public InvalidTokenException(ErrorCode errorCode) {
+    public UnauthorizedActionException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

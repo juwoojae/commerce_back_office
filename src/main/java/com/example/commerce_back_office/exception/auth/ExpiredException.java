@@ -1,4 +1,4 @@
-package com.example.commerce_back_office.exception;
+package com.example.commerce_back_office.exception.auth;
 
 import com.example.commerce_back_office.exception.code.ErrorCode;
 import lombok.Getter;

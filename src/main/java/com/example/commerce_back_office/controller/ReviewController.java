@@ -1,5 +1,6 @@
 package com.example.commerce_back_office.controller;
 
+import com.example.commerce_back_office.dto.CommonResponse;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.review.ReviewRequestDto;
 import com.example.commerce_back_office.dto.review.ReviewResponseDto;
@@ -12,6 +13,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.commerce_back_office.exception.code.SuccessCode.*;
+import static org.springframework.http.HttpStatus.*;
 
 /**
  * 리뷰 정보를 조회하는 REST 컨트롤러입니다.
@@ -27,13 +31,13 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<ReviewResponseDto> createReview(
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> createReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable long productId,
             @Valid @RequestBody ReviewRequestDto request) {
 
         ReviewResponseDto response = reviewService.save(userPrincipal.getUser(), productId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(CREATED).body(CommonResponse.of(CREATE_REVIEW, response));
     }
 
     @GetMapping("/{id}" )
@@ -41,13 +45,13 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable Long id) {
         ReviewResponseDto response = reviewService.getOne(id,userPrincipal.getUser());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEW, response));
     }
 
     @GetMapping
     public ResponseEntity<List<ReviewResponseDto>> getReviews(@AuthenticationPrincipal CustomUserDetails userPrincipal) {
         List<ReviewResponseDto> response = reviewService.getAll(userPrincipal.getUser());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
     }
 
     @PatchMapping("/{id}" )
@@ -56,7 +60,7 @@ public class ReviewController {
             @PathVariable Long id,
             @Valid @RequestBody ReviewRequestDto request) {
         ReviewResponseDto response = reviewService.patch(id, userPrincipal.getUser(), request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(OK).body(CommonResponse.of(UPDATE_REVIEW, response));
     }
 
     @DeleteMapping("/{id}" )
@@ -64,6 +68,10 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable Long id) {
         reviewService.delete(id, userPrincipal.getUser());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(NO_CONTENT).build();
     }
 }
+
+
+
+
