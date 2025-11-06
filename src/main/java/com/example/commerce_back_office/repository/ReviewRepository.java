@@ -1,9 +1,11 @@
 package com.example.commerce_back_office.repository;
 
 import com.example.commerce_back_office.domain.entity.Review;
+import com.example.commerce_back_office.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
@@ -14,4 +16,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     default List<Review> searchKeyword(String keyword) {
         return findByUser_NameIgnoreCaseContainingOrProduct_NameIgnoreCaseContainingOrContentIgnoreCaseContaining(keyword,keyword,keyword);
     }
+
+    Optional<Review> findByIdAndUser(Long reviewId, User user);
+
+    List<Review> findAllByUser(User user);
 }

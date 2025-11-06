@@ -45,17 +45,16 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
-    public ReviewResponseDto getOne(Long id) {
-        Review review = reviewRepository.findById(id).orElseThrow(
+    public ReviewResponseDto getOne(Long reviewId,User user) {
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
                 ()-> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         return ReviewResponseDto.from(review);
-
     }
 
-    public List<ReviewResponseDto> getAll() {
-        List<Review> reviews = reviewRepository.findAll();
+    public List<ReviewResponseDto> getAll(User user) {
+        List<Review> reviews = reviewRepository.findAllByUser(user);
 
         return reviews.stream()
                 .map(ReviewResponseDto::from)
@@ -63,8 +62,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponseDto patch(Long id, ReviewRequestDto request) {
-        Review review = reviewRepository.findById(id).orElseThrow(
+    public ReviewResponseDto patch(Long reviewId,User user, ReviewRequestDto request) {
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
                 ()-> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
@@ -73,22 +72,13 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
-    public void delete(Long id) {
+    public void delete(Long reviewId,User user) {
         //id 검사
-        Review review = reviewRepository.findById(id).orElseThrow(
+        Review review = reviewRepository.findByIdAndUser(reviewId,user).orElseThrow(
                 () -> new NotFoundException(REVIEW_NOT_FOUND)
         );
 
         //리뷰 삭제
-        reviewRepository.deleteById(id);
-    }
-
-    public List<ReviewResponseDto> searchKeword(String keyword) {
-        //리뷰 검색
-        List<Review> reviews = reviewRepository.searchKeyword(keyword);
-
-        return reviews.stream()
-                .map(ReviewResponseDto::from)
-                .collect(Collectors.toList());
+        reviewRepository.deleteById(reviewId);
     }
 }
