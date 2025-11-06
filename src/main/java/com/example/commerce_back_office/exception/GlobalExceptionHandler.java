@@ -74,6 +74,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(UNAUTHORIZED).body(CommonResponse.of(ex.getErrorCode()));
     }
+
 }
 
 

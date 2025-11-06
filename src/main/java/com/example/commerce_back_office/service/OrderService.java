@@ -7,6 +7,8 @@ import com.example.commerce_back_office.domain.entity.Product;
 import com.example.commerce_back_office.domain.entity.User;
 import com.example.commerce_back_office.dto.CustomUserDetails;
 import com.example.commerce_back_office.dto.order.*;
+import com.example.commerce_back_office.exception.NotFoundException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.repository.OrderRepository;
 import com.example.commerce_back_office.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class OrderService {
         User user = userDetails.getUser();
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
 
         Integer totalPrice = product.getPrice() * request.getQuantity();
 
@@ -54,14 +56,14 @@ public class OrderService {
     // 3 특정 주문 조회
     public OrderResponse getOrder(Long orderId, User user,UserRole role) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ORDER_NOT_FOUND));
 
         Long currentUserId = user.getId();          // 로그인한 유저
         Long orderUserId = order.getUser().getId(); //주문에 등록된 유저
 
         //일반 유저가 다른 유저 주문시 권한 없음
         if (role != UserRole.ADMIN && !order.getUser().getId().equals(currentUserId)) {
-            throw new RuntimeException("권한이 없습니다.");
+            throw new NotFoundException(ErrorCode.AUTHORIZATION);
         }
 
         return new OrderResponse(order);
@@ -70,19 +72,19 @@ public class OrderService {
     // 4 주문 수정 (유저, 관리자)
     public OrderResponse updateOrder(Long orderId, OrderUpdateRequest request, CustomUserDetails userDetails) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException( ErrorCode.ORDER_NOT_FOUND));
 
         Long userId = userDetails.getUser().getId();
         UserRole role = userDetails.getUser().getRole();
 
         if (role != UserRole.ADMIN && !order.getUser().getId().equals(userId)) {
-            throw new RuntimeException("권한이 없습니다.");
+            throw new NotFoundException(ErrorCode.AUTHORIZATION);
         }
 
         //상품 변경
         if (request.getProductId() != null) {
             Product product = productRepository.findById(request.getProductId())
-                    .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
             order.setProduct(product);
             // totalPrice도 새 상품 가격 반영
             order.setTotalPrice(product.getPrice() * (request.getQuantity() != null ? request.getQuantity() : order.getQuantity()));
@@ -100,7 +102,7 @@ public class OrderService {
     // 5 주문 상태 업데이트
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, CustomUserDetails userDetails) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ORDER_NOT_FOUND));
 
         Long userId = userDetails.getUser().getId();
         UserRole role = userDetails.getUser().getRole();
@@ -108,13 +110,13 @@ public class OrderService {
         // 주문 취소: 유저 자기 주문 + 관리자
         if (status == OrderStatus.CANCELLED) {
             if (role != UserRole.ADMIN && !order.getUser().getId().equals(userId)) {
-                throw new RuntimeException("권한이 없습니다.");
+                throw new NotFoundException(ErrorCode.AUTHORIZATION);
             }
         }
         // 배송중, 배송완료관리자만
         else if (status == OrderStatus.SHIPPED || status == OrderStatus.DELIVERED) {
             if (role != UserRole.ADMIN) {
-                throw new RuntimeException("관리자 권한이 필요합니다.");
+                throw new NotFoundException(ErrorCode.AUTHORIZATION);
             }
         }
 

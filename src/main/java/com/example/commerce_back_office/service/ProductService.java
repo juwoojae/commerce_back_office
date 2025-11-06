@@ -4,6 +4,9 @@ import com.example.commerce_back_office.domain.Category;
 import com.example.commerce_back_office.domain.UserRole;
 import com.example.commerce_back_office.domain.entity.Product;
 import com.example.commerce_back_office.dto.product.*;
+import com.example.commerce_back_office.exception.InvalidProductQuantityException;
+import com.example.commerce_back_office.exception.NotFoundException;
+import com.example.commerce_back_office.exception.code.ErrorCode;
 import com.example.commerce_back_office.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +32,7 @@ public class ProductService {
             Category category = null;
             try { category = Category.valueOf(keyword.toUpperCase()); } catch (Exception ignored) {}
             products = productRepository.findByNameContainingIgnoreCaseOrCategory(keyword, category);
-            if (products.isEmpty()) throw new RuntimeException("검색 결과가 없습니다");
+            if (products.isEmpty()) throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
         return products.stream().map(this::toProductListResponse).collect(Collectors.toList());
@@ -38,15 +41,15 @@ public class ProductService {
     // 2 상품 상세 조회 (유저, 관리자 모두 가능)
     public ProductDetailResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException (ErrorCode.PRODUCT_NOT_FOUND));
         return toProductDetailResponse(product);
     }
 
     // 3 상품 등록 (관리자만)
     public ProductDetailResponse createProduct(ProductCreateRequest request, UserRole role) {
-        if (role != UserRole.ADMIN) throw new RuntimeException("관리자 권한이 필요합니다.");
+        if (role != UserRole.ADMIN) throw new NotFoundException( ErrorCode.AUTHORIZATION);
         if (request.getStock() == null || request.getStock() <= 0)
-            throw new IllegalArgumentException("재고 수량은 0 이하로 설정할 수 없습니다.");
+            throw new InvalidProductQuantityException(ErrorCode.INVALIDATE_QUANTITY);
 
         Product product = new Product(
                 request.getName(),
@@ -62,13 +65,14 @@ public class ProductService {
 
     // 4 상품 수정 (관리자만)
     public ProductDetailResponse updateProduct(Long id, ProductUpdateRequest request, UserRole role) {
-        if (role != UserRole.ADMIN) throw new RuntimeException("관리자 권한이 필요합니다.");
+        if (role != UserRole.ADMIN) throw new NotFoundException( ErrorCode.AUTHORIZATION);
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        //재고가 0개일때
         if (request.getStock() != null && request.getStock() <= 0)
-            throw new IllegalArgumentException("재고 수량은 0 이하로 수정할 수 없습니다.");
+            throw new InvalidProductQuantityException(ErrorCode.INVALIDATE_QUANTITY);
 
         if (request.getName() != null) product.setName(request.getName());
         if (request.getPrice() != null) product.setPrice(request.getPrice());
