@@ -78,7 +78,7 @@ public class SecurityConfig {
         //글로벌 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/user/register", "/user/auth").permitAll() //모든 권한에 대해서 허용
+                        .requestMatchers("/user/register", "/user/auth","/refresh").permitAll() //모든 권한에 대해서 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN")  //ADMIN 권한에 대해서만 허용
                         .requestMatchers("/orders/").authenticated()
                         .anyRequest().authenticated()); //그 이외 로그인한 사용자에 대해 허용

@@ -43,7 +43,6 @@ public class AuthController {
     /**
      * 관리자 에 의한 회원 가입처리 컨트롤러
      */
-    @Secured("ROLE_ADMIN")
     @PostMapping("/admin/register")
     public ResponseEntity<CommonResponse<JoinByAdminResponseDto>> joinByAdminProcess(
             @Valid @RequestBody JoinByAdminRequestDto joinByAdminRequestDto) {
