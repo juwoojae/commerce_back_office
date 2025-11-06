@@ -7,7 +7,6 @@ import com.example.commerce_back_office.dto.review.ReviewResponseDto;
 import com.example.commerce_back_office.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +40,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}" )
-    public ResponseEntity<ReviewResponseDto> getOneReview(
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> getOneReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable Long id) {
         ReviewResponseDto response = reviewService.getOne(id,userPrincipal.getUser());
@@ -49,13 +48,13 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponseDto>> getReviews(@AuthenticationPrincipal CustomUserDetails userPrincipal) {
+    public ResponseEntity<CommonResponse<List<ReviewResponseDto>>> getReviews(@AuthenticationPrincipal CustomUserDetails userPrincipal) {
         List<ReviewResponseDto> response = reviewService.getAll(userPrincipal.getUser());
         return ResponseEntity.status(OK).body(CommonResponse.of(GET_REVIEWS, response));
     }
 
     @PatchMapping("/{id}" )
-    public ResponseEntity<ReviewResponseDto> patchReview(
+    public ResponseEntity<CommonResponse<ReviewResponseDto>> patchReview(
             @AuthenticationPrincipal CustomUserDetails userPrincipal,
             @PathVariable Long id,
             @Valid @RequestBody ReviewRequestDto request) {
